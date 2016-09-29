@@ -56,7 +56,7 @@ class Converter
         $this->replaces = [
             [
                 // $REX
-                'regex' => '\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\]',
+                'regex' => '\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\][^\[]',
                 'replaces' => [
                     ['ARTICLE_ID' => 'rex_article::getCurrentId()'],
                     ['CLANG' => 'rex_clang::getAll()'],
@@ -591,8 +591,18 @@ class Converter
                             if ($search != '') {
                                 $expr = str_replace('$$SEARCH$$', $match, $search);
                             }
-                            if (preg_match('@' . $expr . '@', $item[$column], $matches)) {
-                                $this->addErrorMessage('<span style="font-weight: 400;"><code>' . $matches[0] . '</code> sollte angepasst bzw. nicht mehr verwendet werden.<br /><br />Tabelle: <b style="color: #000;">' . $table . '</b>' . str_repeat('&nbsp;', 10) . 'Id: <b style="color: #000;">' . $item['id'] . '</b>' . str_repeat('&nbsp;', 10) . 'Spalte: <b style="color: #000;">' . $column . '</b></span>');
+                            if (preg_match('@' . $expr . '@i', $item[$column])) {
+                                preg_match_all('@' . $expr . '@i', $item[$column], $matches);
+                                $matches = array_count_values($matches[0]);
+                                foreach ($matches as $match => $count) {
+                                    $this->addErrorMessage('
+                                        <span style="font-weight: 400;"><code>' . $match . '</code> sollte angepasst bzw. nicht mehr verwendet werden.<br /><br />
+                                            Tabelle: <b style="color: #000;">' . $table . '</b>' . str_repeat('&nbsp;', 10) . '
+                                            Id: <b style="color: #000;">' . $item['id'] . '</b>' . str_repeat('&nbsp;', 10) . '
+                                            Spalte: <b style="color: #000;">' . $column . '</b>' . str_repeat('&nbsp;', 10) . '
+                                            Vorkommen: <b style="color: #000;">' . $count . '</b>
+                                        </span>');
+                                }
                             }
                         }
                     }
