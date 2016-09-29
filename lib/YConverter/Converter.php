@@ -670,7 +670,7 @@ class Converter
         $r5Table = $converter->getR5Table($params['r5Table']);
         $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `id` = id +1 ORDER BY id DESC');
         $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `priority` = `id`');
-        $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `status` = 0');
+        $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `status` = 1');
     }
 
 
