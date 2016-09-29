@@ -34,9 +34,10 @@ class Converter
         $this->matches = [
             [
                 // $REX
-                'regex' => '\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\]',
+                'regex' => '(\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\])',
                 'matches' => [
-                    'MOD_REWRITE',
+                    //'MOD_REWRITE',
+                    '.*?',
                 ]
             ], [
                 'matches' => [
@@ -590,8 +591,8 @@ class Converter
                             if ($search != '') {
                                 $expr = str_replace('$$SEARCH$$', $match, $search);
                             }
-                            if (preg_match('@' . $expr . '@', $item[$column])) {
-                                $this->addErrorMessage('<b style="color: #000;">' . $match . '</b> existiert nicht mehr.<br />Tabelle: <b style="color: #000;">' . $table . '</b><br />Id: <b style="color: #000; font-weight: 400;">' . $item['id'] . '</b><br />Spalte: <b style="color: #000; font-weight: 400;">' . $column . '</b>');
+                            if (preg_match('@' . $expr . '@', $item[$column], $matches)) {
+                                $this->addErrorMessage('<span style="font-weight: 400;"><code>' . $matches[0] . '</code> sollte angepasst bzw. nicht mehr verwendet werden.<br /><br />Tabelle: <b style="color: #000;">' . $table . '</b>' . str_repeat('&nbsp;', 10) . 'Id: <b style="color: #000;">' . $item['id'] . '</b>' . str_repeat('&nbsp;', 10) . 'Spalte: <b style="color: #000;">' . $column . '</b></span>');
                             }
                         }
                     }
@@ -614,7 +615,7 @@ class Converter
                     if ($search != '') {
                         $expr = str_replace('$$SEARCH$$', $expr, $search);
                     }
-                    $content = preg_replace('@' . $expr . '@', $replace, $content);
+                    $content = preg_replace('@' . $expr . '@i', $replace, $content);
                 }
             }
         }
