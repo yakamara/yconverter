@@ -482,7 +482,7 @@ class Converter
                     $items = $sql4->getArray('SELECT * FROM ' . $r4ConvertTable);
 
                     $sql5 = \rex_sql::factory(5);
-                    $sql5->debugsql = true;
+                    //$sql5->debugsql = true;
                     //$sql->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '`;');
                     $sql5->setQuery('TRUNCATE TABLE `' . $r5Table . '`;');
                     if (count($items)) {
