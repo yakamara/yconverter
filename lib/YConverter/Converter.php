@@ -357,12 +357,15 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'template' => [
                 'r5Table' => 'template',
-                'dropColumns' => [
-                    'label',
+                'convertSerialize' => [
+                    'attributes',
                 ],
                 'fireReplaces' => [
                     'content',
-                ]
+                ],
+                'dropColumns' => [
+                    'label',
+                ],
             ],
 
         ];
@@ -385,6 +388,16 @@ class Converter
     public function getR5Table($table)
     {
         return self::$tablePrefix . $this->getR4Table($table);
+    }
+
+    public function getTables()
+    {
+        return array_keys($this->tables);
+    }
+
+    public function getTablePrefix()
+    {
+        return self::$tablePrefix;
     }
 
     protected function addMessage($string)
