@@ -20,12 +20,15 @@ class Converter
     public $regex = [];
     public $messages = [];
     public $tableStructure = [];
+    public $transferType = '';
+    public $transferTypes = ['all', 'changeable'];
 
     public function __construct()
     {
         global $REX;
 
         $this->rex = $REX;
+        $this->transferType = '';
 
         $this->db = \rex_sql::factory();
         $this->db->debugsql = 0;
@@ -56,24 +59,24 @@ class Converter
         $this->replaces = [
             [
                 // $REX
-                'regex' => '\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\][^\[]',
+                'regex' => '\$REX\s*\[[\'\"]$$SEARCH$$[\'\"]\]([^\[])',
                 'replaces' => [
-                    ['ARTICLE_ID' => 'rex_article::getCurrentId()'],
-                    ['CLANG' => 'rex_clang::getAll()'],
-                    ['CUR_CLANG' => 'rex_clang::getCurrentId()'],
-                    ['ERROR_EMAIL' => 'rex::getErrorEmail()'],
-                    ['FRONTEND_FILE' => 'rex_path::frontendController()'],
-                    ['FRONTEND_PATH' => 'rex_path::frontend()'],
-                    ['HTDOCS_PATH' => 'rex_path::frontend()'],
-                    ['INCLUDE_PATH' => 'rex_path::src() . \'/addons/\''],
-                    ['MEDIAFOLDER' => 'rex_path::media()'],
-                    ['NOTFOUND_ARTICLE_ID' => 'rex_article::getNotFoundArticleId()'],
-                    ['REDAXO' => 'rex::isBackend()'],
-                    ['SERVER' => 'rex::getServer()'],
-                    ['SERVERNAME' => 'rex::getServerName()'],
-                    ['START_ARTICLE_ID' => 'rex_article::getSiteStartArticleId()'],
-                    ['TABLE_PREFIX' => 'rex::getTablePrefix()'],
-                    ['USER' => 'rex::getUser()'],
+                    ['ARTICLE_ID' => 'rex_article::getCurrentId()$1'],
+                    ['CLANG' => 'rex_clang::getAll()$1'],
+                    ['CUR_CLANG' => 'rex_clang::getCurrentId()$1'],
+                    ['ERROR_EMAIL' => 'rex::getErrorEmail()$1'],
+                    ['FRONTEND_FILE' => 'rex_path::frontendController()$1'],
+                    ['FRONTEND_PATH' => 'rex_path::frontend()$1'],
+                    ['HTDOCS_PATH' => 'rex_path::frontend()$1'],
+                    ['INCLUDE_PATH' => 'rex_path::src() . \'/addons/\'$1'],
+                    ['MEDIAFOLDER' => 'rex_path::media()$1'],
+                    ['NOTFOUND_ARTICLE_ID' => 'rex_article::getNotFoundArticleId()$1'],
+                    ['REDAXO' => 'rex::isBackend()$1'],
+                    ['SERVER' => 'rex::getServer()$1'],
+                    ['SERVERNAME' => 'rex::getServerName()$1'],
+                    ['START_ARTICLE_ID' => 'rex_article::getSiteStartArticleId()$1'],
+                    ['TABLE_PREFIX' => 'rex::getTablePrefix()$1'],
+                    ['USER' => 'rex::getUser()$1'],
                 ]
             ], [
                 // OOF Spezial
@@ -182,6 +185,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             '62_params' => [
                 'r5Table' => 'metainfo_field',
+                'isChangeable' => 0,
                 'addColumns' => [
                     ['callback' => 'text AFTER validate'],
                 ],
@@ -197,16 +201,19 @@ class Converter
 
             '62_type' => [
                 'r5Table' => 'metainfo_type',
+                'isChangeable' => 0,
             ],
 
             // Image Manager
             // - - - - - - - - - - - - - - - - - -
             '679_types' => [
                 'r5Table' => 'media_manager_type',
+                'isChangeable' => 0,
             ],
 
             '679_type_effects' => [
                 'r5Table' => 'media_manager_type_effect',
+                'isChangeable' => 0,
                 'changeColumns' => [
                     ['prior' => 'priority'],
                 ],
@@ -222,6 +229,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'action' => [
                 'r5Table' => 'action',
+                'isChangeable' => 0,
                 'convertTimestamp' => [
                     'createdate', 'updatedate',
                 ],
@@ -234,6 +242,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'article' => [
                 'r5Table' => 'article',
+                'isChangeable' => 1,
                 'changeColumns' => [
                     ['re_id' => 'parent_id'],
                     ['catprior' => 'catpriority'],
@@ -254,6 +263,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'article_slice' => [
                 'r5Table' => 'article_slice',
+                'isChangeable' => 1,
                 'changeColumns' => [
                     ['clang' => 'clang_id'],
                     ['ctype' => 'ctype_id'],
@@ -301,6 +311,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'clang' => [
                 'r5Table' => 'clang',
+                'isChangeable' => 0,
                 'addColumns' => [
                     ['code' => 'varchar(255) AFTER id'],
                     ['priority' => 'int(10) AFTER name'],
@@ -313,6 +324,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'file' => [
                 'r5Table' => 'media',
+                'isChangeable' => 1,
                 'dropColumns' => [
                     're_file_id',
                 ],
@@ -323,6 +335,7 @@ class Converter
 
             'file_category' => [
                 'r5Table' => 'media_category',
+                'isChangeable' => 1,
                 'changeColumns' => [
                     ['re_id' => 'parent_id'],
                 ],
@@ -335,6 +348,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'module' => [
                 'r5Table' => 'module',
+                'isChangeable' => 0,
                 'changeColumns' => [
                     ['ausgabe' => 'output'],
                     ['eingabe' => 'input'],
@@ -357,6 +371,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'template' => [
                 'r5Table' => 'template',
+                'isChangeable' => 0,
                 'convertSerialize' => [
                     'attributes',
                 ],
@@ -390,10 +405,36 @@ class Converter
         return self::$tablePrefix . $this->getR4Table($table);
     }
 
-    public function getTables()
+    public function getR4Tables()
     {
-        return array_keys($this->tables);
+        $tables = array_keys($this->tables);
+        foreach($tables as $index => $table) {
+            $tables[$index] = $this->getR4Table($table);
+        }
+        return $tables;
     }
+
+    public function getR5Tables()
+    {
+        $tables = [];
+        foreach ($this->tables as $r4Table => $params) {
+            $tables[] = $this->getR5Table($params['r5Table']);
+        }
+        return $tables;
+    }
+
+    public function getR5ChangeableTables()
+    {
+        $tables = [];
+        foreach ($this->tables as $r4Table => $params) {
+            if (isset($params['isChangeable']) && $params['isChangeable']) {
+                $tables[] = $this->getR5Table($params['r5Table']);
+            }
+        }
+        return $tables;
+    }
+
+
 
     public function getTablePrefix()
     {
@@ -413,6 +454,66 @@ class Converter
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    public function setTransferType($type)
+    {
+        if (in_array($type, $this->transferTypes)) {
+            $this->transferType = $type;
+        }
+    }
+
+    public function transferToR5($tables)
+    {
+        global $REX;
+        if (isset($REX['DB']['5'])) {
+            $r5Tables = $this->getR5Tables();
+
+            $tables = array_intersect($tables, $r5Tables);
+
+            if (count($tables)) {
+                $this->loadDestinationTableStructure();
+
+                foreach ($tables as $table) {
+                    $r5Table = str_replace($this->getTablePrefix(), '', $table);
+                    $r4ConvertTable = $table;
+
+                    $sql4 = \rex_sql::factory();
+                    $items = $sql4->getArray('SELECT * FROM ' . $r4ConvertTable);
+
+                    $sql5 = \rex_sql::factory(5);
+                    $sql5->debugsql = true;
+                    //$sql->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '`;');
+                    $sql5->setQuery('TRUNCATE TABLE `' . $r5Table . '`;');
+                    if (count($items)) {
+                        $columns = $sql5->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
+
+                        if (count($columns)) {
+                            $r4ConvertColumns = $this->tableStructure[$r4ConvertTable];
+                            $r5Columns = [];
+                            foreach ($columns as $column) {
+                                $r5Columns[$column['Field']] = $column;
+                            }
+                            if (count($r4ConvertColumns) != count($r5Columns)) {
+                                foreach ($r4ConvertColumns as $missingColumnName => $missingColumn) {
+                                    if (!isset($r5Columns[$missingColumnName])) {
+                                        $sql5->setQuery('ALTER TABLE `' . $r5Table .'` ADD COLUMN `' . $missingColumnName . '` ' . $missingColumn['Type']);
+                                    }
+                                }
+                            }
+                        }
+
+                        foreach ($items as $item) {
+                            $sql5->setTable($r5Table);
+                            foreach ($item as $field => $value) {
+                                $sql5->setValue($field, $sql5->escape($value));
+                            }
+                            $sql5->insert();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     protected function createDestinationTables()
@@ -699,7 +800,7 @@ class Converter
 
 
 
-    protected function pr($array, $exit = false)
+    public function pr($array, $exit = false)
     {
         echo '<pre>'; print_r($array); echo '</pre>';
         if ($exit) {
