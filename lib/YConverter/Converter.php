@@ -23,6 +23,10 @@ class Converter
     public $transferType = '';
     public $transferTypes = ['all', 'changeable'];
 
+    const EARLY = -1;
+    const NORMAL = 0;
+    const LATE = 1;
+
     public function __construct()
     {
         global $REX;
@@ -256,7 +260,10 @@ class Converter
                 'dropColumns' => [
                     'attributes',
                 ],
-                'callback' => 'YConverter\Converter::callbackModifyArticles'
+                'callback' => [
+                    'YConverter\Converter::callbackModifyArticles',
+                    self::EARLY
+                ]
             ],
 
             // Article Slices
@@ -304,7 +311,10 @@ class Converter
                 'dropColumns' => [
                     'next_article_slice_id', 'php', 'html'
                 ],
-                'callback' => 'YConverter\Converter::callbackModifyArticleSlices'
+                'callback' => [
+                    'YConverter\Converter::callbackModifyArticleSlices',
+                    self::LATE
+                ],
             ],
 
             // Clang
@@ -317,7 +327,10 @@ class Converter
                     ['priority' => 'int(10) AFTER name'],
                     ['status' => 'tinyint(1) AFTER revision'],
                 ],
-                'callback' => 'YConverter\Converter::callbackModifyLanguages'
+                'callback' => [
+                    'YConverter\Converter::callbackModifyLanguages',
+                    self::EARLY
+                ]
             ],
 
             // Media
@@ -609,12 +622,23 @@ class Converter
 
     protected function callCallbacks()
     {
+        $callbacks = [];
         foreach ($this->tables as $r4Table => $params) {
             $r5Table = $this->getR5Table($params['r5Table']);
 
-            if (isset($params['callback']) && is_callable($params['callback'])) {
-                call_user_func($params['callback'], $params);
-                $this->addMessage('Callback für ' . $r5Table . ' aufgerufen');
+            if (isset($params['callback']) && isset($params['callback'][0])) {
+                $level = isset($params['callback'][1]) ? $params['callback'][1] : 0;
+                $callbacks[$level][] = ['function' => $params['callback'][0], 'table' => $r5Table, 'params' => $params];
+            }
+        }
+        foreach ([self::EARLY, self::NORMAL, self::LATE] as $level) {
+            if (isset($callbacks[$level]) && is_array($callbacks[$level])) {
+                foreach ($callbacks[$level] as $callback) {
+                    if(is_callable($callback['function'])) {
+                        call_user_func($callback['function'], $callback['params']);
+                        $this->addMessage('Callback ' . $callback['function'] . ' für ' . $r5Table . ' aufgerufen');
+                    }
+                }
             }
         }
     }
