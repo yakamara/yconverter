@@ -325,12 +325,15 @@ class Converter
             'file' => [
                 'r5Table' => 'media',
                 'isChangeable' => 1,
-                'dropColumns' => [
-                    're_file_id',
+                'changeColumns' => [
+                    ['file_id' => 'id'],
                 ],
                 'convertTimestamp' => [
                     'createdate', 'updatedate',
-                ]
+                ],
+                'dropColumns' => [
+                    're_file_id',
+                ],
             ],
 
             'file_category' => [
