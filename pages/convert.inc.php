@@ -68,23 +68,49 @@ echo '
     <h2 class="rex-hl2">Tabellen und Daten für REDAXO 5 konvertieren</h2>
 
     <div class="rex-addon-content">
-        <h3>Was wird passieren?</h3>
-        <p class="rex-tx1">Die nachfolgenden Tabellen werden in ihrer Struktur und Daten kopiert und für REDAXO 5 modifiziert. Die Tabellenspalten werden angepasst, nicht mehr genutzte Spalten gelöscht, Inhalte teilweise verschoben bzw. konvertiert.<code class="rex-code">' . implode(', ', $r4Tables) . '</code></p>
-        
         <h3>Vorgehen</h3>
-        <ol>
-            <li><b>REDAXO 5</b> und das AddOn <b>Adminer</b> via <b>Installer</b> installieren.</li>
-            <li>Unten den Button klicken und REDAXO 4 Tabellen konvertieren lassen.</li>
-            <li>Den <b>Adminer hier im REDAXO 4</b> in neuem Tab aufrufen.</li>
-            <li>Im <b>Adminer von REDAXO 4</b> oben links auf <b>Exportieren</b> klicken.</li>
-            <li>Tabellen und Daten alle wegklicken (im Tabellenkopf).</li>
-            <li>Nur die Daten auswählen, bei den die Tabelle mit <b>' . $converter->getTablePrefix() . '</b> beginnen.</li>
-            <li>Button <b>Exportieren</b> klicken.</li>
-            <li>Daten kopieren.</li>
-            <li>Im <b>Admin von REDAXO 5</b> oben links <b>SQL-Kommando</b> klicken und das Kopierte in das Textfeld einfügen.</li>
-            <li>Nach <b>' . $converter->getTablePrefix() . '</b> im Textfeld suchen und löschen.</li>
-            <li>Den Button <b>Ausführen</b> klicken.</li>
-        </ol>
+        <ul>
+            <li>
+                <b>Vorbereitung</b>
+                <ul>
+                    <li><b>REDAXO 5</b> installieren</li>
+                    <li>das AddOn <b>Adminer</b> in der <b>REDAXO 5 Instanz</b> via <b>Installer</b> installieren.</li>
+                </ul>
+            </li>
+            <li>
+                <b>1. Phase</b>
+                <ul>
+                    <li>
+                    <p><b>Hinweis:</b> Die nachfolgenden Tabellen werden in ihrer Struktur und Inhalte in die <b>REDAXO 4 Datenbank</b> kopiert und für REDAXO 5 modifiziert. Die Tabellenspalten werden angepasst, nicht mehr genutzte Spalten gelöscht, Inhalte teilweise verschoben bzw. konvertiert.</p>
+                    <p><code class="rex-code" style="display: inline-block;">' . implode('<br />', $r4Tables) . '</code></p></li>
+                    <li><b>Aktion:</b> Unten bei Phase 1 den Button klicken und REDAXO 4 Tabellen konvertieren lassen.</li>
+                </ul>
+            </li>
+            <li>
+                <h3>2. Phase</h3>
+                <b>entweder</b>
+                <ul>
+                    <li>kann man versuchen die Tabellen zu REDAXO 5 mittels u.s. Formular übertragen</li> 
+                </ul>
+                <b>oder</b>
+                <ul>
+                    <li><b>man verwendet den Adminer</b>
+                        <ol>
+                            <li>Den <b>Adminer hier im REDAXO 4</b> in neuem Tab aufrufen.</li>
+                            <li>Im <b>Adminer von REDAXO 4</b> oben links auf <b>Exportieren</b> klicken.</li>
+                            <li>Tabellen und Daten alle wegklicken (im Tabellenkopf).</li>
+                            <li>Nur die Tabellen und Daten auswählen, bei den die Tabelle mit <b>' . $converter->getTablePrefix() . '</b> beginnen.</li>
+                            <li>Button <b>Exportieren</b> klicken.</li>
+                            <li>Erstellte Daten kopieren.</li>
+                            <li>Im <b>Adminer von REDAXO 5</b> oben links <b>SQL-Kommando</b> klicken und das Kopierte in das Textfeld einfügen.</li>
+                            <li>Nach <b>' . $converter->getTablePrefix() . '</b> im Textfeld suchen und löschen.</li>
+                            <li>Den Button <b>Ausführen</b> klicken.</li>
+                        </ol>
+                        <b>Hinweis:</b> Funktioniert der Import nicht wie gewünscht, sollte man sich den Export als Datei erstellen lassen. Die heruntergeladene Datei kann man dann im <b>Adminer von REDAXO 5</b> importieren.
+                    </li> 
+                </ul>
+            </li>
+        </ul>
     </div>
 </div>
     
@@ -92,7 +118,7 @@ echo '
     <h2 class="rex-hl2">1. Phase <small style="font-size: 80%; font-weight: 400;">REDAXO 4 Tabellen kopieren und für REDAXO 5 vorbereiten</small></h2>
     
     <div class="rex-addon-content">
-        <p class="rex-tx1">Die nachfolgenden Tabellen werden in ihrer Struktur und Daten kopiert und für REDAXO 5 modifiziert. Die Tabellenspalten werden angepasst, nicht mehr genutzte Spalten gelöscht, Inhalte teilweise verschoben bzw. konvertiert.</p>
+        <p class="rex-tx1">Die nachfolgenden Tabellen werden  jetzt kopiert und für REDAXO 5 modifiziert.</p>
         <code class="rex-code" style="display: inline-block; margin-left: 150px;">' . implode('<br />', $r4Tables) . '</code>
     </div>
     <div class="rex-form">
