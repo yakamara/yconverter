@@ -25,6 +25,10 @@ $REX['DB']['5']['PSW'] = isset($db['password']) ? $db['password'] : '';
 $REX['DB']['5']['NAME'] = isset($db['name']) ? $db['name'] : '';
 $REX['DB']['5']['PERSISTENT'] = false;
 
+if (OOAddon::isActivated('xform') && OOAddon::getVersion('xform') != '4.14') {
+    echo rex_warning('XForm aktualisieren!');
+}
+
 if ('convert' == $func) {
     $converter = new Converter();
     $converter->run();
