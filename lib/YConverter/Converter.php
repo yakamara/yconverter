@@ -130,6 +130,7 @@ class Converter
                     ['REX_IS_VALUE\[([1-9]+)\]' => 'REX_VALUE[id=$1 isset=1]'],
                     ['REX_LINK_BUTTON\[(id=)?([1-9]|10)\]' => 'REX_LINK[id=$2 widget=1]'],
                     ['REX_LINK_ID\[(id=)?([1-9]|10)\]' => 'REX_LINK[id=$2 output=id]'],
+                    ['REX_LINK\[(id=)?([1-9]|10)\]' => 'REX_LINK[id=$2 output=url]'],
                     ['REX_LINKLIST_BUTTON\[(id=)?([1-9]|10)\]' => 'REX_LINKLIST[id=$2 widget=1]'],
                     ['REX_MEDIA_BUTTON\[(id=)?([1-9]|10)\]' => 'REX_MEDIA[id=$2 widget=1]'],
                     ['REX_MEDIALIST_BUTTON\[(id=)?([1-9]|10)\]' => 'REX_MEDIALIST[id=$2 widget=1]'],
