@@ -138,7 +138,7 @@ class Converter
                     ['REX_PHP' => 'REX_VALUE[id=' . self::$phpValueField . ' output=php]'],
                     ['INPUT_HTML' => 'REX_INPUT_VALUE[' . self::$htmlValueField . ']'],
                     ['REX_HTML' => 'REX_VALUE[id=' . self::$htmlValueField . ' output=html]'],
-                    ['([^_])VALUE\[(id=)?([1-9]+[0-9]*)\]' => '$1REX_INPUT_VALUE[id=$3]'],
+                    ['([^_])VALUE\[(id=)?([1-9]+[0-9]*)\]' => '$1REX_INPUT_VALUE[$3]'],
                 ]
             ], [
                 // Extension Points
