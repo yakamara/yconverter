@@ -169,6 +169,7 @@ class Converter
                     ['rex_info\(' => 'rex_view::info('],
                     ['rex_install_dump\(' => 'rex_sql_util::importDump('],
                     ['rex_organize_priorities\(' => 'rex_sql_util::organizePriorities('],
+                    ['rex_parse_article_name\(' => 'rex_string::normalize('],
                     ['rex_register_extension\(' => 'rex_extension::register('],
                     ['rex_register_extension_point\(' => 'rex_extension::registerPoint('],
                     ['rex_send_article\(' => 'rex_response::sendArticle('],
