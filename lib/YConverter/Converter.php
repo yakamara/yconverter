@@ -209,6 +209,10 @@ class Converter
             '62_type' => [
                 'r5Table' => 'metainfo_type',
                 'isChangeable' => 0,
+                'callback' => [
+                    'YConverter\Converter::callbackModifyMetainfoTypes'
+                ],
+
             ],
 
             // Image Manager
@@ -828,6 +832,13 @@ class Converter
         $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `status` = 1');
     }
 
+    public static function callbackModifyMetainfoTypes($params)
+    {
+        // rex_metainfo_type anpassen
+        $converter = new self();
+        $r5Table = $converter->getR5Table($params['r5Table']);
+        $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `label` = REPLACE(`label`, "_BUTTON", "_WIDGET")');
+    }
 
 
     public function pr($array, $exit = false)
