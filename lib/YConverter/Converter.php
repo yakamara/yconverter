@@ -150,7 +150,7 @@ class Converter
                     ['OOMEDIA_IS_IN_USE' => 'MEDIA_IS_IN_USE'],
                 ]
             ], [
-                // Rest
+                // Core Rest
                 'replaces' => [
                     ['\$I18N\-\>msg\(' => 'rex_i18n::msg('],
                     ['(\/?)files\/' => '$1media/'],
@@ -166,6 +166,8 @@ class Converter
                     ['rex_hasBackendSession\(' => 'rex_backend_login::hasSession('],
                     ['rex_highlight_string\(' => 'rex_string::highlight('],
                     ['rex_highlight_file\(' => 'rex_string::highlight('],
+                    ['rex_img_type' => 'rex_media_type'],
+                    ['rex_img_file' => 'rex_media_file'],
                     ['rex_info\(' => 'rex_view::info('],
                     ['rex_install_dump\(' => 'rex_sql_util::importDump('],
                     ['rex_organize_priorities\(' => 'rex_sql_util::organizePriorities('],
@@ -180,13 +182,13 @@ class Converter
                     ['rex_title\(' => 'rex_view::title('],
                     ['rex_translate\(' => 'rex_i18n::translate('],
                     ['rex_warning\(' => 'rex_view::error('],
-                    ['rex_img_type' => 'rex_media_type'],
-                    ['rex_img_file' => 'rex_media_file'],
-                    ['db2email' => 'tpl2email']
-
+                ]
+            ], [
+                // XForm
+                'replaces' => [
+                    ['db2email' => 'tpl2email'],
                 ]
             ],
-
         ];
 
         $this->tables = [
