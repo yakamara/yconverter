@@ -398,6 +398,9 @@ class Converter
                 'convertSerialize' => [
                     'attributes',
                 ],
+                'convertTimestamp' => [
+                    'createdate', 'updatedate',
+                ],
                 'fireReplaces' => [
                     'content',
                 ],
