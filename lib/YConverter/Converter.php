@@ -180,7 +180,9 @@ class Converter
                     ['rex_title\(' => 'rex_view::title('],
                     ['rex_translate\(' => 'rex_i18n::translate('],
                     ['rex_warning\(' => 'rex_view::error('],
-
+                    ['rex_img_type' => 'rex_media_type'],
+                    ['rex_img_file' => 'rex_media_file'],
+                    ['db2email' => 'tpl2email']
 
                 ]
             ],
