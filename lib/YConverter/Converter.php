@@ -102,13 +102,13 @@ class Converter
                 ]
             ], [
                 // OOF
-                'regex' => '$$SEARCH$$\s*::\s*\((.*?)\)',
+                'regex' => '$$SEARCH$$\s*::\s*([a-zA-Z]+)\((.*?)\)',
                 'replaces' => [
-                    ['OOArticle' => 'rex_article::($1)'],
-                    ['OOCategory' => 'rex_category::($1)'],
-                    ['OOMedia' => 'rex_media::($1)'],
-                    ['OOMediaCategory' => 'rex_media_category::($1)'],
-                    ['OOArticleSlice' => 'rex_article_slice::($1)'],
+                    ['OOArticle' => 'rex_article::$1($2)'],
+                    ['OOCategory' => 'rex_category::$1($2)'],
+                    ['OOMedia' => 'rex_media::$1($2)'],
+                    ['OOMediaCategory' => 'rex_media_category::$1($2)'],
+                    ['OOArticleSlice' => 'rex_article_slice::$1($2)'],
                 ]
             ], [
                 // OO isValid
