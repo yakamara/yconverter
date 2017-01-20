@@ -10,6 +10,8 @@
  * file that was distributed with this source code.
  */
 
+$msg = '';
+
 $minPhpVersion = '5.4.0';
 $minRexVersion = '4.6.0';
 if (version_compare(PHP_VERSION, $minPhpVersion) < 0) {
