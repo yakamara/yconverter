@@ -817,10 +817,12 @@ class Converter
                     $slices = yconverterGetSortedSlices($article_id, $article_clang_id);
 
                     if (count($slices)) {
-                        $priority = 0;
+                        $priorities = [];
+                        /* @var $slice \OOArticleSlice */
                         foreach ($slices as $slice) {
+                            $priority = isset($priorities[$slice->getCtype()]) ? $priorities[$slice->getCtype()] + 1 : 1;
+                            $priorities[$slice->getCtype()] = $priority;
                             $slice_id = $slice->getId();
-                            ++$priority;
                             $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `priority` = "' . $priority . '" WHERE `id` = "' . $slice_id . '"');
                         }
                     }
