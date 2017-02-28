@@ -835,6 +835,30 @@ class Converter
                 }
             }
         }
+
+        // serialisierte Daten prüfen und umwandeln
+        $modules = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `output` LIKE "%rex_var::toArray%"');
+        if (count($modules)) {
+            $module_ids = [];
+            foreach ($modules as $module) {
+                $module_ids[] = 'module_id = "' . $module['id']. '"';
+            }
+
+            $slices = $converter->db->getArray('SELECT `id`, `value1`, `value2`, `value3`, `value4`, `value5`, `value6`, `value7`, `value8`, `value9`, `value10`, `value11`, `value12`, `value13`, `value14`, `value15`, `value16`, `value17`, `value18`, `value19`, `value20` FROM    ' . $r5Table . ' WHERE ' . implode(' OR ', $module_ids));
+            foreach ($slices as $slice) {
+                $sets = [];
+                for ($i = 1; $i <= 20; $i++) {
+                    $column = 'value' . $i;
+                    $value = \rex_var::toArray($slice[$column]);
+                    if (is_array($value)) {
+                        $sets[] = '`' . $column . '` = \'' . json_encode($value) . '\'';
+                    }
+                }
+                if (count($sets)) {
+                    $converter->db->setQuery('UPDATE `' . $r5Table . '` SET ' . implode(', ', $sets) . ' WHERE `id` = "' . $slice['id'] . '"');
+                }
+            }
+        }
     }
 
     public static function callbackModifyLanguages($params)
@@ -856,7 +880,7 @@ class Converter
     }
 
 
-    public function pr($array, $exit = false)
+    public static function pr($array, $exit = false)
     {
         echo '<pre>'; print_r($array); echo '</pre>';
         if ($exit) {
