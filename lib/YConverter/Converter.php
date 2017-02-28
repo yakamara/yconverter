@@ -804,6 +804,10 @@ class Converter
         $r5Table = $converter->getR5Table($params['r5Table']);
         $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `clang_id` = clang_id +1 ORDER BY clang_id DESC');
 
+        // Revisionen berücksichtigen
+        $revision = $converter->db->getArray('SELECT MAX(`revision`) AS revision_max FROM `' . $r5Table . '`');
+        $revision_max = isset($revision[0]['revision_max']) ? $revision[0]['revision_max'] : 0;
+
         // Prioritäten setzen
         $clangs = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('clang'));
         foreach ($clangs as $clang) {
@@ -812,18 +816,20 @@ class Converter
 
             if ($converter->db->getRows() >= 1) {
                 foreach ($articles as $article) {
-                    $article_id = $article['id'];
-                    $article_clang_id = $clang_id - 1;
-                    $slices = yconverterGetSortedSlices($article_id, $article_clang_id);
 
-                    if (count($slices)) {
-                        $priorities = [];
-                        /* @var $slice \OOArticleSlice */
-                        foreach ($slices as $slice) {
-                            $priority = isset($priorities[$slice->getCtype()]) ? $priorities[$slice->getCtype()] + 1 : 1;
-                            $priorities[$slice->getCtype()] = $priority;
-                            $slice_id = $slice->getId();
-                            $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `priority` = "' . $priority . '" WHERE `id` = "' . $slice_id . '"');
+                    for ($revision = 0; $revision <= $revision_max; $revision++) {
+                        $article_id = $article['id'];
+                        $article_clang_id = $clang_id - 1;
+                        $slices = yconverterGetSortedSlices($article_id, $article_clang_id, 0, $revision);
+                        if (count($slices)) {
+                            $priorities = [];
+                            /* @var $slice \OOArticleSlice */
+                            foreach ($slices as $slice) {
+                                $priority = isset($priorities[$slice->getCtype()]) ? $priorities[$slice->getCtype()] + 1 : 1;
+                                $priorities[$slice->getCtype()] = $priority;
+                                $slice_id = $slice->getId();
+                                $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `priority` = "' . $priority . '" WHERE `id` = "' . $slice_id . '"');
+                            }
                         }
                     }
                 }

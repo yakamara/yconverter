@@ -10,9 +10,9 @@
  * file that was distributed with this source code.
  */
 
-function yconverterGetSortedSlices($articleId, $clang = false, $moduleId = 0) {
+function yconverterGetSortedSlices($articleId, $clang = false, $moduleId = 0, $revision = 0) {
     $slices = array();
-    $slicesTmp = \OOArticleSlice::getSlicesForArticle($articleId, $clang);
+    $slicesTmp = \OOArticleSlice::getSlicesForArticle($articleId, $clang, $revision);
     if ($slicesTmp) {
         if (is_array($slicesTmp)) {
             $sliceMap = array();
