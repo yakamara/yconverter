@@ -713,7 +713,7 @@ class Converter
                     $items = $this->db->getArray('SELECT `id`, `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` != ""');
                     if (count($items)) {
                         foreach ($items as $item) {
-                            $this->db->setQuery('UPDATE `' . $table . '` SET `' . $column . '` = \'' . json_encode(unserialize($item[$column])) . '\' WHERE `id` = "' . $item['id'] . '"');
+                            $this->db->setQuery('UPDATE `' . $table . '` SET `' . $column . '` = \'' . addslashes(json_encode(unserialize($item[$column]))) . '\' WHERE `id` = "' . $item['id'] . '"');
                         }
                     }
                 }
@@ -851,7 +851,7 @@ class Converter
                     $column = 'value' . $i;
                     $value = \rex_var::toArray($slice[$column]);
                     if (is_array($value)) {
-                        $sets[] = '`' . $column . '` = \'' . json_encode($value) . '\'';
+                        $sets[] = '`' . $column . '` = \'' . addslashes(json_encode($value)) . '\'';
                     }
                 }
                 if (count($sets)) {
