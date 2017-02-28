@@ -15,6 +15,10 @@
 function adminer_object()
 {
     include __DIR__ .'/../lib/Adminer.php';
+
+    // Avoid warning "A non-numeric value encountered"
+    error_reporting(error_reporting() & ~E_WARNING);
+
     return new rex_adminer();
 }
 

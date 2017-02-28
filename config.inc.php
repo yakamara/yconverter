@@ -23,4 +23,9 @@ if ($REX['REDAXO'] && is_object($REX['USER'])) {
     $REX['ADDON']['pages'][$myaddon] = array();
     $REX['ADDON']['pages'][$myaddon][] = array('', 'Konvertieren');
     $REX['ADDON']['pages'][$myaddon][] = array('adminer', 'Adminer');
+
+    if ($REX['USER']->isAdmin() && !isset($_REQUEST['page']) && isset($_GET['username']) && isset($_GET['db'])) {
+        $_REQUEST['page'] = 'yconverter';
+        $_REQUEST['subpage'] = 'adminer';
+    }
 }
