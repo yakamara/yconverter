@@ -187,6 +187,7 @@ class Converter
                 // XForm
                 'replaces' => [
                     ['db2email' => 'tpl2email'],
+                    ['notEmpty' => 'empty'],
                 ]
             ],
         ];
