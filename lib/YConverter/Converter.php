@@ -89,6 +89,7 @@ class Converter
                     ['OOArticle\s*::\s*getArticleById\(' => 'rex_article::get('],
                     ['OOCategory\s*::\s*getCategoryById\(' => 'rex_category::get('],
                     ['OOMedia\s*::\s*getMediaByFilename\(' => 'rex_media::get('],
+                    ['OOMedia\s*::\s*getMediaByName\(' => 'rex_media::get('],
                     ['OOMediaCategory\s*::\s*getCategoryById\(' => 'rex_media_category::get('],
                     ['OOAddon\s*::\s*isActivated\((.*?)\)' => 'rex_addon::get($1)->isActivated()'],
                     ['OOAddon\s*::\s*isAvailable\((.*?)\)' => 'rex_addon::get($1)->isAvailable()'],
@@ -182,12 +183,21 @@ class Converter
                     ['rex_title\(' => 'rex_view::title('],
                     ['rex_translate\(' => 'rex_i18n::translate('],
                     ['rex_warning\(' => 'rex_view::error('],
+                    ['OOArticle' => 'rex_article'],
+                    ['OOCategory' => 'rex_category'],
+                    ['OOMedia' => 'rex_media'],
+                    ['OOMediaCategory' => 'rex_media_category'],
                 ]
             ], [
                 // XForm
                 'replaces' => [
                     ['db2email' => 'tpl2email'],
                     ['notEmpty' => 'empty'],
+                ]
+            ], [
+                // SEO42
+                'replaces' => [
+                    ['seo42\s*::\s*getMediaFile\(' => 'rex_url::media('],
                 ]
             ],
         ];
