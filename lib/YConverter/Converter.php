@@ -198,6 +198,8 @@ class Converter
                 // SEO42
                 'replaces' => [
                     ['seo42\s*::\s*getMediaFile\(' => 'rex_url::media('],
+                    ['seo42\s*::\s*getLangCode\((.*?)\)' => 'rex_clang::getCurrent()->getCode()'],
+                    ['seo42\s*::\s*getBaseUrl\((.*?)\)' => 'rex::getServer()'],
                 ]
             ],
         ];
