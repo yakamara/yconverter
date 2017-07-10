@@ -183,10 +183,10 @@ class Converter
                     ['rex_title\(' => 'rex_view::title('],
                     ['rex_translate\(' => 'rex_i18n::translate('],
                     ['rex_warning\(' => 'rex_view::error('],
-                    ['OOArticle' => 'rex_article'],
-                    ['OOCategory' => 'rex_category'],
-                    ['OOMedia' => 'rex_media'],
-                    ['OOMediaCategory' => 'rex_media_category'],
+                    ['instanceof\s*OOArticle' => 'instanceof rex_article'],
+                    ['instanceof\s*OOCategory' => 'instanceof rex_category'],
+                    ['instanceof\s*OOMedia' => 'instanceof rex_media'],
+                    ['instanceof\s*OOMediaCategory' => 'instanceof rex_media_category'],
                 ]
             ], [
                 // XForm
