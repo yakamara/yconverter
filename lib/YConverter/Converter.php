@@ -36,8 +36,10 @@ class Converter
 
         $this->db = \rex_sql::factory();
         $this->db->debugsql = 0;
+    }
 
-
+    public function boot()
+    {
         $this->matches = [
             [
                 // $REX
@@ -226,8 +228,8 @@ class Converter
             '62_type' => [
                 'r5Table' => 'metainfo_type',
                 'isChangeable' => 0,
-                'callback' => [
-                    'YConverter\Converter::callbackModifyMetainfoTypes'
+                'callbacks' => [
+                    ['YConverter\Converter::callbackModifyMetainfoTypes'],
                 ],
 
             ],
@@ -284,9 +286,8 @@ class Converter
                 'dropColumns' => [
                     'attributes',
                 ],
-                'callback' => [
-                    'YConverter\Converter::callbackModifyArticles',
-                    self::EARLY
+                'callbacks' => [
+                    ['YConverter\Converter::callbackModifyArticles', self::EARLY],
                 ]
             ],
 
@@ -335,9 +336,8 @@ class Converter
                 'dropColumns' => [
                     'next_article_slice_id', 'php', 'html'
                 ],
-                'callback' => [
-                    'YConverter\Converter::callbackModifyArticleSlices',
-                    self::LATE
+                'callbacks' => [
+                    ['YConverter\Converter::callbackModifyArticleSlices', self::LATE],
                 ],
             ],
 
@@ -351,9 +351,8 @@ class Converter
                     ['priority' => 'int(10) AFTER name'],
                     ['status' => 'tinyint(1) AFTER revision'],
                 ],
-                'callback' => [
-                    'YConverter\Converter::callbackModifyLanguages',
-                    self::EARLY
+                'callbacks' => [
+                    ['YConverter\Converter::callbackModifyLanguages', self::EARLY],
                 ]
             ],
 
@@ -436,6 +435,16 @@ class Converter
         $this->modifyDestinationTables();
         $this->callCallbacks();
     }
+
+    public function removeR4TablePrefix($table)
+    {
+        global $REX;
+        if (substr($table, 0, strlen($REX['TABLE_PREFIX'])) == $REX['TABLE_PREFIX']) {
+            $table = substr($table, strlen($REX['TABLE_PREFIX']));
+        }
+        return $table;
+    }
+
 
     public function getR4Table($table)
     {
@@ -525,8 +534,8 @@ class Converter
                     $items = $sql4->getArray('SELECT * FROM ' . $r4ConvertTable);
 
                     $sql5 = \rex_sql::factory(5);
-                    //$sql5->debugsql = true;
-                    //$sql->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '`;');
+                    $sql5->debugsql = 0;
+                    //$sql5->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '`;');
                     $sql5->setQuery('TRUNCATE TABLE `' . $r5Table . '`;');
                     if (count($items)) {
                         $columns = $sql5->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
@@ -583,7 +592,8 @@ class Converter
         foreach ($this->tables as $r4Table => $params) {
             $r5Table = $this->getR5Table($params['r5Table']);
 
-            $columns = $this->db->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
+            $sql = \rex_sql::factory();
+            $columns = $sql->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
             foreach ($columns as $column) {
                 $this->tableStructure[$r5Table][$column['Field']] = $column;
             }
@@ -653,9 +663,11 @@ class Converter
         foreach ($this->tables as $r4Table => $params) {
             $r5Table = $this->getR5Table($params['r5Table']);
 
-            if (isset($params['callback']) && isset($params['callback'][0])) {
-                $level = isset($params['callback'][1]) ? $params['callback'][1] : 0;
-                $callbacks[$level][] = ['function' => $params['callback'][0], 'table' => $r5Table, 'params' => $params];
+            if (isset($params['callbacks'])) {
+                foreach ($params['callbacks'] as $callback) {
+                    $level = isset($callback[1]) ? $callback[1] : 0;
+                    $callbacks[$level][] = ['function' => $callback[0], 'table' => $r5Table, 'params' => $params];
+                }
             }
         }
         foreach ([self::EARLY, self::NORMAL, self::LATE] as $level) {
@@ -663,7 +675,7 @@ class Converter
                 foreach ($callbacks[$level] as $callback) {
                     if(is_callable($callback['function'])) {
                         call_user_func($callback['function'], $callback['params']);
-                        $this->addMessage('Callback ' . $callback['function'] . ' für ' . $r5Table . ' aufgerufen');
+                        $this->addMessage('Callback ' . $callback['function'] . ' für ' . $callback['table'] . ' aufgerufen');
                     }
                 }
             }
@@ -674,7 +686,9 @@ class Converter
     {
         foreach ($columns as $column) {
             foreach ($column as $name => $type) {
-                $this->db->setQuery('ALTER TABLE `' . $table .'` ADD COLUMN `' . $name . '` ' . $type);
+                if (!isset($this->tableStructure[$table][$name])) {
+                    $this->db->setQuery('ALTER TABLE `' . $table .'` ADD COLUMN `' . $name . '` ' . $type);
+                }
             }
         }
     }
@@ -862,9 +876,12 @@ class Converter
                 $sets = [];
                 for ($i = 1; $i <= 20; $i++) {
                     $column = 'value' . $i;
-                    $value = \rex_var::toArray($slice[$column]);
-                    if (is_array($value)) {
-                        $sets[] = '`' . $column . '` = \'' . addslashes(json_encode($value)) . '\'';
+                    // Notices bei unserialize vermeiden
+                    if (preg_match('@^a:\d+:{.*?}$@', $slice[$column])) {
+                        $value = \rex_var::toArray($slice[$column]);
+                        if (is_array($value)) {
+                            $sets[] = '`' . $column . '` = \'' . addslashes(json_encode($value)) . '\'';
+                        }
                     }
                 }
                 if (count($sets)) {
