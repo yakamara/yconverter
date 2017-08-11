@@ -537,24 +537,24 @@ class Converter
                     $sql5->debugsql = 0;
                     //$sql5->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '`;');
                     $sql5->setQuery('TRUNCATE TABLE `' . $r5Table . '`;');
-                    if (count($items)) {
-                        $columns = $sql5->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
+                    $columns = $sql5->getArray('SHOW COLUMNS FROM `' . $r5Table . '`;');
 
-                        if (count($columns)) {
-                            $r4ConvertColumns = $this->tableStructure[$r4ConvertTable];
-                            $r5Columns = [];
-                            foreach ($columns as $column) {
-                                $r5Columns[$column['Field']] = $column;
-                            }
-                            if (count($r4ConvertColumns) != count($r5Columns)) {
-                                foreach ($r4ConvertColumns as $missingColumnName => $missingColumn) {
-                                    if (!isset($r5Columns[$missingColumnName])) {
-                                        $sql5->setQuery('ALTER TABLE `' . $r5Table .'` ADD COLUMN `' . $missingColumnName . '` ' . $missingColumn['Type']);
-                                    }
+                    if (count($columns)) {
+                        $r4ConvertColumns = $this->tableStructure[$r4ConvertTable];
+                        $r5Columns = [];
+                        foreach ($columns as $column) {
+                            $r5Columns[$column['Field']] = $column;
+                        }
+                        if (count($r4ConvertColumns) != count($r5Columns)) {
+                            foreach ($r4ConvertColumns as $missingColumnName => $missingColumn) {
+                                if (!isset($r5Columns[$missingColumnName])) {
+                                    $sql5->setQuery('ALTER TABLE `' . $r5Table .'` ADD COLUMN `' . $missingColumnName . '` ' . $missingColumn['Type']);
                                 }
                             }
                         }
+                    }
 
+                    if (count($items)) {
                         foreach ($items as $item) {
                             $sql5->setTable($r5Table);
                             foreach ($item as $field => $value) {
