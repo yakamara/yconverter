@@ -558,7 +558,13 @@ class Converter
                         foreach ($items as $item) {
                             $sql5->setTable($r5Table);
                             foreach ($item as $field => $value) {
-                                $sql5->setValue($field, $sql5->escape($value));
+                                if (trim($value) == '' && strtoupper($r5Columns[$column['Field']]['Null']) == 'YES') {
+                                    // NULL Werte ueberspringen und nicht via rex_sql setzen
+                                    // NULL würde als string in die DB gespeichert werden
+                                    // $sql5->setValue($field, 'NULL');
+                                } else {
+                                    $sql5->setValue($field, $sql5->escape($value));
+                                }
                             }
                             $sql5->insert();
                         }
