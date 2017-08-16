@@ -870,13 +870,17 @@ class Converter
         }
 
         // serialisierte Daten prüfen und umwandeln
-        $modules = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `output` LIKE "%rex_var::toArray%"');
+        $modulesRexVar = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `output` LIKE "%rex_var::toArray%"');
+        $modulesArray = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `input` REGEXP ".*VALUE\\\[.*\\\]\s*\\\["');
+        $modules = array_merge($modulesArray, $modulesRexVar);
+        self::pr($modules);
         if (count($modules)) {
             $module_ids = [];
             foreach ($modules as $module) {
-                $module_ids[] = 'module_id = "' . $module['id']. '"';
+                if (!isset($module_ids[$module['id']])) {
+                    $module_ids[$module['id']] = 'module_id = "' . $module['id']. '"';
+                }
             }
-
             $slices = $converter->db->getArray('SELECT `id`, `value1`, `value2`, `value3`, `value4`, `value5`, `value6`, `value7`, `value8`, `value9`, `value10`, `value11`, `value12`, `value13`, `value14`, `value15`, `value16`, `value17`, `value18`, `value19`, `value20` FROM    ' . $r5Table . ' WHERE ' . implode(' OR ', $module_ids));
             foreach ($slices as $slice) {
                 $sets = [];
