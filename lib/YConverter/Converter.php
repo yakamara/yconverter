@@ -873,7 +873,6 @@ class Converter
         $modulesRexVar = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `output` LIKE "%rex_var::toArray%"');
         $modulesArray = $converter->db->getArray('SELECT `id` FROM ' . $converter->getR5Table('module') . ' WHERE `input` REGEXP ".*VALUE\\\[.*\\\]\s*\\\["');
         $modules = array_merge($modulesArray, $modulesRexVar);
-        self::pr($modules);
         if (count($modules)) {
             $module_ids = [];
             foreach ($modules as $module) {
