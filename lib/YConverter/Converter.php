@@ -206,7 +206,7 @@ class Converter
             ], [
                 // Community Addon -> YCom
                 'replaces' => [
-                    ['checkperm' => 'checkPerm'],
+                    ['checkperm\(' => 'checkPerm('],
                     ['community' => 'ycom'],
                     ['rex_com_auth' => 'rex_ycom_auth'],
                 ]
