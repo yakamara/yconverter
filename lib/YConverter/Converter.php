@@ -208,7 +208,7 @@ class Converter
                 'replaces' => [
                     ['checkperm\(' => 'checkPerm('],
                     ['community' => 'ycom'],
-                    ['rex_com_auth' => 'rex_ycom_auth'],
+                    ['rex_com_auth\s*::' => 'rex_ycom_auth::'],
                 ]
             ],
         ];
