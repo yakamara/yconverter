@@ -203,6 +203,13 @@ class Converter
                     ['seo42\s*::\s*getLangCode\((.*?)\)' => 'rex_clang::getCurrent()->getCode()'],
                     ['seo42\s*::\s*getBaseUrl\((.*?)\)' => 'rex::getServer()'],
                 ]
+            ], [
+                // Community Addon -> YCom
+                'replaces' => [
+                    ['checkperm' => 'checkPerm'],
+                    ['community' => 'ycom'],
+                    ['rex_com_auth' => 'rex_ycom_auth'],
+                ]
             ],
         ];
 
