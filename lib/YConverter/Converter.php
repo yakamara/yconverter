@@ -209,6 +209,7 @@ class Converter
                     ['checkperm\(' => 'checkPerm('],
                     ['rex_addon::get\([\'\"]community[\'\"]\)' => 'rex_addon::get(\'ycom\')'],
                     ['rex_com_auth\s*::' => 'rex_ycom_auth::'],
+                    ['com_auth_form_' => 'ycom_auth_form_'],
                 ]
             ],
         ];
