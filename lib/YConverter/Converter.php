@@ -207,13 +207,15 @@ class Converter
                 // Community Addon -> YCom
                 'replaces' => [
                     ['checkperm\(' => 'checkPerm('],
-                    ['get\([\'\"]community[\'\"]\)' => 'get(\'ycom\')'],
+                    ['rex_addon::get\([\'\"]community[\'\"]\)->isActivated\(\)' => 'rex_addon::get(\'ycom\')->isActivated()'],
+                    ['rex_addon::get\([\'\"]community[\'\"]\)->isAvailable\(\)' => 'rex_addon::get(\'ycom\')->isAvailable()'],
+                    ['rex_addon::get\([\'\"]community[\'\"]\)->isInstalled\(\)' => 'rex_addon::get(\'ycom\')->isInstalled()'],
                     ['rex_com_auth\s*::' => 'rex_ycom_auth::'],
                     ['com_auth_form_' => 'ycom_auth_form_'],
                     ['com_auth_load_user' => 'ycom_auth_load_user'],
                     ['com_auth_db' => 'ycom_auth_db'],
-                    ['password|password|' => 'ycom_auth_password|password|'],
-                    ['com_auth_password_hash|password|password|' => ''],
+                    ['com_auth_password_hash\|password\|password\|' => ''],
+                    ['password\|password\|' => 'ycom_auth_password|password|'],
                 ]
             ],
         ];
