@@ -214,7 +214,7 @@ class Converter
                     ['com_auth_form_' => 'ycom_auth_form_'],
                     ['com_auth_load_user' => 'ycom_auth_load_user'],
                     ['com_auth_db' => 'ycom_auth_db'],
-                    ['com_auth_password_hash\|password\|password\|' => ''],
+                    ['com_auth_password_hash\|.*?\|.*?\|' => ''],
                     ['password\|password\|' => 'ycom_auth_password|password|'],
                 ]
             ],
