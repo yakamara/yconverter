@@ -211,6 +211,11 @@ class Converter
                     ['rex_addon::get\((["\']{1})community$1\)->isAvailable\(\)' => 'rex_addon::get(\'ycom\')->isAvailable()'],
                     ['rex_addon::get\((["\']{1})community$1\)->isInstalled\(\)' => 'rex_addon::get(\'ycom\')->isInstalled()'],
                     ['rex_com_auth\s*::' => 'rex_ycom_auth::'],
+                    ['com_auth_db' => 'ycom_auth_db'],
+                    ['com_auth_form_' => 'ycom_auth_form_'],
+                    ['com_auth_load_user' => 'ycom_auth_load_user'],
+                    ['com_auth_password_hash\|.*' => ''],
+                    ['password\|.*?\|' => 'ycom_auth_password|$1|'],
                 ]
             ],
         ];
