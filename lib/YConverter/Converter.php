@@ -207,9 +207,9 @@ class Converter
                 // Community Addon -> YCom
                 'replaces' => [
                     ['checkperm\(' => 'checkPerm('],
-                    ['rex_addon::get\((["']{1})community$1\)->isActivated\(\)' => 'rex_addon::get(\'ycom\')->isActivated()'],
-                    ['rex_addon::get\((["']{1})community$1\)->isAvailable\(\)' => 'rex_addon::get(\'ycom\')->isAvailable()'],
-                    ['rex_addon::get\((["']{1})community$1\)->isInstalled\(\)' => 'rex_addon::get(\'ycom\')->isInstalled()'],
+                    ['rex_addon::get\((["\']{1})community$1\)->isActivated\(\)' => 'rex_addon::get(\'ycom\')->isActivated()'],
+                    ['rex_addon::get\((["\']{1})community$1\)->isAvailable\(\)' => 'rex_addon::get(\'ycom\')->isAvailable()'],
+                    ['rex_addon::get\((["\']{1})community$1\)->isInstalled\(\)' => 'rex_addon::get(\'ycom\')->isInstalled()'],
                     ['rex_com_auth\s*::' => 'rex_ycom_auth::'],
                 ]
             ],
