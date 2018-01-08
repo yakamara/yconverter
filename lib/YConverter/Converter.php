@@ -403,8 +403,8 @@ class Converter
                 'r5Table' => 'module',
                 'isChangeable' => 0,
                 'changeColumns' => [
-                    ['ausgabe' => 'output'],
-                    ['eingabe' => 'input'],
+                    ['ausgabe' => 'output mediumtext'],
+                    ['eingabe' => 'input mediumtext'],
                 ],
                 'convertTimestamp' => [
                     'createdate', 'updatedate',
@@ -425,6 +425,10 @@ class Converter
             'template' => [
                 'r5Table' => 'template',
                 'isChangeable' => 0,
+                'changeColumns' => [
+                    ['content' => 'content mediumtext'],
+                ],
+
                 'convertSerialize' => [
                     'attributes',
                 ],
