@@ -88,6 +88,7 @@ class Converter
                 // OOF Spezial
                 'replaces' => [
                     ['new\s*rex_article' => 'new rex_article_content'],
+                    ['new\s*article' => 'new rex_article_content'],
                     ['OOArticle\s*::\s*getArticleById\(' => 'rex_article::get('],
                     ['OOCategory\s*::\s*getCategoryById\(' => 'rex_category::get('],
                     ['OOMedia\s*::\s*getMediaByFilename\(' => 'rex_media::get('],
