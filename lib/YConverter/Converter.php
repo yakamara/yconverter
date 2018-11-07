@@ -225,6 +225,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             '62_params' => [
                 'r5Table' => 'metainfo_field',
+                'autoIncrementColumn' => 'id',
                 'isChangeable' => 0,
                 'addColumns' => [
                     ['callback' => 'text AFTER validate'],
@@ -236,14 +237,19 @@ class Converter
                 ],
                 'convertTimestamp' => [
                     'createdate', 'updatedate',
-                ]
+                ],
+                'callbacks' => [
+                    ['YConverter\Converter::callbackSetAutoIncrement'],
+                ],
             ],
 
             '62_type' => [
                 'r5Table' => 'metainfo_type',
+                'autoIncrementColumn' => 'id',
                 'isChangeable' => 0,
                 'callbacks' => [
                     ['YConverter\Converter::callbackModifyMetainfoTypes'],
+                    ['YConverter\Converter::callbackSetAutoIncrement'],
                 ],
 
             ],
@@ -359,6 +365,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'clang' => [
                 'r5Table' => 'clang',
+                'autoIncrementColumn' => 'id',
                 'isChangeable' => 0,
                 'addColumns' => [
                     ['code' => 'varchar(255) AFTER id'],
@@ -367,6 +374,7 @@ class Converter
                 ],
                 'callbacks' => [
                     ['YConverter\Converter::callbackModifyLanguages', self::EARLY],
+                    ['YConverter\Converter::callbackSetAutoIncrement'],
                 ]
             ],
 
@@ -374,6 +382,7 @@ class Converter
             // - - - - - - - - - - - - - - - - - -
             'file' => [
                 'r5Table' => 'media',
+                'autoIncrementColumn' => 'id',
                 'isChangeable' => 1,
                 'changeColumns' => [
                     ['file_id' => 'id'],
@@ -384,6 +393,9 @@ class Converter
                 'dropColumns' => [
                     're_file_id',
                 ],
+                'callbacks' => [
+                    ['YConverter\Converter::callbackSetAutoIncrement'],
+                ]
             ],
 
             'file_category' => [
@@ -936,6 +948,13 @@ class Converter
         $converter->db->setQuery('UPDATE `' . $r5Table . '` SET `label` = REPLACE(`label`, "_BUTTON", "_WIDGET")');
     }
 
+    public static function callbackSetAutoIncrement($params)
+    {
+        // auto_increment anpassen
+        $converter = new self();
+        $r5Table = $converter->getR5Table($params['r5Table']);
+        $converter->db->setQuery('ALTER TABLE `' . $r5Table . '` CHANGE `'.$params['autoIncrementColumn'].'` `'.$params['autoIncrementColumn'].'` INT(11) NOT NULL AUTO_INCREMENT');
+    }
 
     public static function pr($array, $exit = false)
     {
