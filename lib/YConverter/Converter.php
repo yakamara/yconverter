@@ -50,6 +50,7 @@ class Converter
                 ]
             ], [
                 'matches' => [
+                    'getCategoryByName\(',
                     'rex_addslashes',
                     'rex_call_func',
                     'rex_check_callable',
@@ -158,7 +159,10 @@ class Converter
                 'replaces' => [
                     ['\$I18N\-\>msg\(' => 'rex_i18n::msg('],
                     ['(\/?)files\/' => '$1media/'],
+                    ['\-\>countFiles\(' => '->countMedia('],
                     ['getDescription\(' => 'getValue(\'description\''],
+                    ['\-\>getFiles\(' => '->getMedia('],
+                    ['\-\>hasFiles\(' => '->hasMedia('],
                     ['isStartPage\(' => 'isStartArticle('],
                     ['rex_absPath\(' => 'rex_path::absolute('],
                     ['rex_copyDir\(' => 'rex_dir::copy('],
