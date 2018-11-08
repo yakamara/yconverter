@@ -222,7 +222,12 @@ class YFormConverter extends Converter
                 'isChangeable' => 0,
                 'addColumns' => [
                     ['mass_deletion' => 'tinyint(1)'],
+                    ['mass_edit' => 'tinyint(1)'],
+                    ['schema_overwrite' => 'tinyint(1)'],
                     ['history' => 'tinyint(1) '],
+                ],
+                'changeColumns' => [
+                    ['list_amount' => 'list_amount int(11)'],
                 ],
             ],
         ];
