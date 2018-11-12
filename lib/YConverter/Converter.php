@@ -92,6 +92,7 @@ class Converter
                     ['new\s*article' => 'new rex_article_content'],
                     ['OOArticle\s*::\s*getArticleById\(' => 'rex_article::get('],
                     ['OOCategory\s*::\s*getCategoryById\(' => 'rex_category::get('],
+                    ['OOCategory\s*::\s*getChildrenById\((.*?),\s*(.*?)\)' => 'rex_category::get($1)->getChildren($2)'],
                     ['OOMedia\s*::\s*getMediaByFilename\(' => 'rex_media::get('],
                     ['OOMedia\s*::\s*getMediaByName\(' => 'rex_media::get('],
                     ['OOMediaCategory\s*::\s*getCategoryById\(' => 'rex_media_category::get('],
