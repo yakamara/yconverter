@@ -209,6 +209,7 @@ class YFormConverter extends Converter
                 ],
                 'callbacks' => [
                     ['YConverter\YFormConverter::callbackModifyGoogleGeocodeInTables'],
+                    ['YConverter\YFormConverter::callbackModifyLangTextareaInTables'],
                     ['YConverter\YFormConverter::callbackChangeFields'],
                     ['YConverter\YFormConverter::callbackCleanFieldTable'],
                 ],
@@ -283,6 +284,59 @@ class YFormConverter extends Converter
                 $tableName = $converter->getR5Table($converter->removeR4TablePrefix($table['table_name']));
                 $converter->db->setQuery('UPDATE `' . $tableName . '` SET `' . $table['name'] . '` = CONCAT(`' . $latField . '`, ",", `' . $lngField . '`)');
                 $converter->dropTableColumns($tableName, [$latField, $lngField]);
+            }
+        }
+    }
+
+    public static function callbackModifyLangTextareaInTables($params)
+    {
+        // alle Tabellen mit google_geocode anpassen
+        $converter = new self();
+        $r5Table = $converter->getR5Table($params['r5Table']);
+
+        $query = sprintf('SELECT `id`, `table_name`, `list_hidden`, `search`, `name`, `label`  FROM %s WHERE `type_name` = "lang_textarea" AND `type_id` = "value"', $r5Table);
+        $tables = $converter->db->getArray($query);
+        if (count($tables)) {
+            foreach ($tables as $table) {
+                $clangs = $converter->db->getArray('SELECT `id`, `name` FROM ' . $converter->getR4Table('clang'));
+                $tableName = $converter->getR5Table($converter->removeR4TablePrefix($table['table_name']));
+                $column = $table['name'];
+                $modifyResults = $converter->db->getArray('SELECT `id`, `'.$column.'` FROM ' . $tableName);
+
+                $valueParts = [];
+                if (count($modifyResults)) {
+                    foreach ($modifyResults as $modifyResult) {
+                        $valueParts[$modifyResult['id']] = explode('^^^^°°°°', $modifyResult[$column]);
+                    }
+                }
+
+                parent::pr($valueParts);
+
+                foreach ($clangs as $clang) {
+                    $clang_id = (int)$clang['id'] + 1;
+                    $converter->db->setQuery('ALTER TABLE `' . $tableName .'` ADD COLUMN `' . $column.'_'.$clang_id . '` text');
+
+                    $sqlInsert = \rex_sql::factory();
+                    $sqlInsert->debugsql = 0;
+                    $sqlInsert->setTable($r5Table);
+                    $sqlInsert->setValue('table_name', $table['table_name']);
+                    $sqlInsert->setValue('type_id', 'value');
+                    $sqlInsert->setValue('type_name', 'textarea');
+                    $sqlInsert->setValue('list_hidden', $table['list_hidden']);
+                    $sqlInsert->setValue('search', $table['search']);
+                    $sqlInsert->setValue('name', $column.'_'.$clang_id);
+                    $sqlInsert->setValue('label', $table['label'].' ['.$clang['name'].']');
+                    $sqlInsert->insert();
+                }
+
+                foreach ($valueParts as $id => $valuePart) {
+                    foreach ($valuePart as $oldClangId => $input) {
+                        $clang_id = (int)$oldClangId + 1;
+                        $converter->db->setQuery('UPDATE `' . $tableName . '` SET `' . $column.'_'.$clang_id . '` = \'' . $converter->db->escape($input) . '\' WHERE id = "'.$id.'"');
+                    }
+                }
+                $converter->dropTableColumns($tableName, [$column]);
+                $converter->db->setQuery('DELETE FROM `' . $r5Table . '` WHERE `id` = "'.$table['id'].'"');
             }
         }
     }
