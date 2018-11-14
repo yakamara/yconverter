@@ -1,5 +1,8 @@
 # Vorgehen
 
+**Ausführliche Anleitung** 
+[In der REDAXO Doku](https://redaxo.org/doku/master/upgrade-v4-v5)
+
 ## Vorbereitung
 
 **REDAXO 5 installieren**
@@ -42,3 +45,5 @@ das AddOn Adminer in der REDAXO 5 Instanz via Installer installieren.
 
 > Hinweis: Funktioniert der Import nicht wie gewünscht, sollte man sich den Export als Datei erstellen lassen. Die heruntergeladene Datei kann man dann im Adminer von REDAXO 5 importieren.
 
+## 3. Phase
+Nach erfolgreichem Import den Cache unter System in REDAXO 5 löschen und somit neu anlegen lassen. 
