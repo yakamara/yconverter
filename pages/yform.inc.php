@@ -10,7 +10,6 @@
  * file that was distributed with this source code.
  */
 
-use YConverter\Converter;
 use YConverter\YFormConverter;
 
 $func = rex_request('func', 'string');
@@ -28,7 +27,6 @@ if ('convert' == $func) {
     $converter->run();
     $messages = $converter->getMessages();
     echo implode('', $messages);
-
 } elseif ('transfer' == $func && $transfer) {
     if (true !== rex_sql::checkDbConnection($REX['DB']['5']['HOST'], $REX['DB']['5']['LOGIN'], $REX['DB']['5']['PSW'], $REX['DB']['5']['NAME'])) {
         $transfer = false;
@@ -43,7 +41,6 @@ if ('convert' == $func) {
         echo implode('', $messages);
     }
 }
-
 
 $converter = new YFormConverter();
 $converter->boot();
@@ -73,17 +70,17 @@ echo '
         
         <div style="display: inline-block; margin-left: 150px;">
             <h3>Aktionen</h3>
-            <code class="rex-code" style="display: inline-block;">' . implode('<br />', $removableActions) . '</code>        
+            <code class="rex-code" style="display: inline-block;">'.implode('<br />', $removableActions).'</code>        
         </div>
         <div style="display: inline-block; margin-left: 150px;">
             <h3>Values</h3>
-            <code class="rex-code" style="display: inline-block;">' . implode('<br />', $removableValues) . '</code>        
+            <code class="rex-code" style="display: inline-block;">'.implode('<br />', $removableValues).'</code>        
         </div>
     </div>
     <hr />
     <div class="rex-addon-content">
         <p class="rex-tx1">Die nachfolgenden Tabellen werden  jetzt kopiert und für REDAXO 5 modifiziert.</p>
-        <code class="rex-code" style="display: inline-block; margin-left: 150px;">' . implode('<br />', $r4Tables) . '</code>
+        <code class="rex-code" style="display: inline-block; margin-left: 150px;">'.implode('<br />', $r4Tables).'</code>
     </div>
     <div class="rex-form">
         <form action="index.php" method="post">
@@ -120,25 +117,25 @@ echo '
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-host">Host</label>
-                            <input class="rex-form-text" type="text" id="rex-form-host" name="db[host]" value="' . htmlspecialchars($REX['DB']['5']['HOST']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-host" name="db[host]" value="'.htmlspecialchars($REX['DB']['5']['HOST']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-login">Login</label>
-                            <input class="rex-form-text" type="text" id="rex-form-login" name="db[login]" value="' . htmlspecialchars($REX['DB']['5']['LOGIN']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-login" name="db[login]" value="'.htmlspecialchars($REX['DB']['5']['LOGIN']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-password">Passwort</label>
-                            <input class="rex-form-text" type="password" id="rex-form-password" name="db[password]" value="' . htmlspecialchars($REX['DB']['5']['PSW']) . '" />
+                            <input class="rex-form-text" type="password" id="rex-form-password" name="db[password]" value="'.htmlspecialchars($REX['DB']['5']['PSW']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-name">Name</label>
-                            <input class="rex-form-text" type="text" id="rex-form-name" name="db[name]" value="' . htmlspecialchars($REX['DB']['5']['NAME']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-name" name="db[name]" value="'.htmlspecialchars($REX['DB']['5']['NAME']).'" />
                         </p>
                     </div>
                 </div>
@@ -158,7 +155,7 @@ echo '
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-select">
                             <label for="rex-form-transfer-tables">Tabellen auswählen</label>
-                            ' . $selectTransferTables->get() . '
+                            '.$selectTransferTables->get().'
                         </p>
                     </div>
                     <div class="rex-form-row">

@@ -9,10 +9,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace YConverter;
 
 class YFormConverter extends Converter
 {
+    const EARLY = -1;
+    const NORMAL = 0;
+    const LATE = 1;
     public static $tablePrefix = 'yconverter_';
     public static $phpValueField = 19;
     public static $htmlValueField = 20;
@@ -22,10 +26,6 @@ class YFormConverter extends Converter
     public $tableStructure = [];
     public $transferType = '';
     public $transferTypes = ['all', 'changeable'];
-
-    const EARLY = -1;
-    const NORMAL = 0;
-    const LATE = 1;
 
     public function __construct()
     {
@@ -53,7 +53,7 @@ class YFormConverter extends Converter
                 'isChangeable' => 0,
                 'convertPlaceholderToRexVar' => [
                     'subject', 'body', 'body_html',
-                ]
+                ],
             ],
 
             // Fields
@@ -163,8 +163,8 @@ class YFormConverter extends Converter
                             'value' => 'be_media',
                         ],
                         'multiple' => [
-                            'value' => '1'
-                        ]
+                            'value' => '1',
+                        ],
                     ],
                     'date' => [
                         'format' => [
@@ -172,8 +172,8 @@ class YFormConverter extends Converter
                                 '###D###' => 'DD',
                                 '###M###' => 'MM',
                                 '###Y###' => 'YYYY',
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                     'datetime' => [
                         'format' => [
@@ -183,29 +183,29 @@ class YFormConverter extends Converter
                                 '###Y###' => 'YYYY',
                                 '###H###' => 'HH',
                                 '###I###' => 'ii',
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                     'google_geocode' => [
                         'googleapikey' => [
-                            'value' => 'DerYconverterKamSahUndVerschwand' // Das Feld wuerde ansonsten beim callbackCleanFieldTable gelöscht werden
+                            'value' => 'DerYconverterKamSahUndVerschwand', // Das Feld wuerde ansonsten beim callbackCleanFieldTable gelöscht werden
                         ],
                         'position' => [
-                            'value' => ''
-                        ]
+                            'value' => '',
+                        ],
                     ],
                     'time' => [
                         'format' => [
                             'replaces' => [
                                 '###H###' => 'HH',
                                 '###I###' => 'ii',
-                            ]
-                        ]
-                    ]
+                            ],
+                        ],
+                    ],
                 ],
                 'removeValues' => [
                     'submits',
-                    'upload'
+                    'upload',
                 ],
                 'callbacks' => [
                     ['YConverter\YFormConverter::callbackModifyGoogleGeocodeInTables'],
@@ -213,7 +213,6 @@ class YFormConverter extends Converter
                     ['YConverter\YFormConverter::callbackChangeFields'],
                     ['YConverter\YFormConverter::callbackCleanFieldTable'],
                 ],
-
             ],
 
             // Tables
@@ -235,8 +234,8 @@ class YFormConverter extends Converter
 
         // Added all XForm Tables
         // - - - - - - - - - - - - - - - - - -
-        $xformTables = $this->db->getArray('SELECT `table_name` FROM ' . $this->getR4Table('xform_table'));
-        if (count($xformTables)) {
+        $xformTables = $this->db->getArray('SELECT `table_name` FROM '.$this->getR4Table('xform_table'));
+        if (\count($xformTables)) {
             foreach ($xformTables as $xformTable) {
                 $tableName = $this->removeR4TablePrefix($xformTable['table_name']);
                 $this->tables[$tableName] = [
@@ -255,13 +254,12 @@ class YFormConverter extends Converter
 
             $tables = array_intersect($tables, $r5Tables);
 
-            if (count($tables)) {
+            if (\count($tables)) {
                 foreach ($tables as $table) {
                     $r5Table = str_replace($this->getTablePrefix(), '', $table);
                     $sql5 = \rex_sql::factory(5);
                     //$sql5->debugsql = 1;
-                    $sql5->setQuery('CREATE TABLE IF NOT EXISTS `' . $r5Table . '` ( `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ) ENGINE=InnoDB DEFAULT CHARSET=utf8;');
-
+                    $sql5->setQuery('CREATE TABLE IF NOT EXISTS `'.$r5Table.'` ( `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ) ENGINE=InnoDB DEFAULT CHARSET=utf8;');
                 }
             }
         }
@@ -276,13 +274,13 @@ class YFormConverter extends Converter
 
         $query = sprintf('SELECT `table_name`, `name`, `position`  FROM %s WHERE `type_name` = "google_geocode" AND `type_id` = "value"', $r5Table);
         $tables = $converter->db->getArray($query);
-        if (count($tables)) {
+        if (\count($tables)) {
             foreach ($tables as $table) {
                 $positionFields = explode(',', $table['position']);
                 $latField = trim($positionFields[0]);
                 $lngField = trim($positionFields[1]);
                 $tableName = $converter->getR5Table($converter->removeR4TablePrefix($table['table_name']));
-                $converter->db->setQuery('UPDATE `' . $tableName . '` SET `' . $table['name'] . '` = CONCAT(`' . $latField . '`, ",", `' . $lngField . '`)');
+                $converter->db->setQuery('UPDATE `'.$tableName.'` SET `'.$table['name'].'` = CONCAT(`'.$latField.'`, ",", `'.$lngField.'`)');
                 $converter->dropTableColumns($tableName, [$latField, $lngField]);
             }
         }
@@ -296,15 +294,15 @@ class YFormConverter extends Converter
 
         $query = sprintf('SELECT `id`, `table_name`, `list_hidden`, `search`, `name`, `label`  FROM %s WHERE `type_name` = "lang_textarea" AND `type_id` = "value"', $r5Table);
         $tables = $converter->db->getArray($query);
-        if (count($tables)) {
+        if (\count($tables)) {
             foreach ($tables as $table) {
-                $clangs = $converter->db->getArray('SELECT `id`, `name` FROM ' . $converter->getR4Table('clang'));
+                $clangs = $converter->db->getArray('SELECT `id`, `name` FROM '.$converter->getR4Table('clang'));
                 $tableName = $converter->getR5Table($converter->removeR4TablePrefix($table['table_name']));
                 $column = $table['name'];
-                $modifyResults = $converter->db->getArray('SELECT `id`, `'.$column.'` FROM ' . $tableName);
+                $modifyResults = $converter->db->getArray('SELECT `id`, `'.$column.'` FROM '.$tableName);
 
                 $valueParts = [];
-                if (count($modifyResults)) {
+                if (\count($modifyResults)) {
                     foreach ($modifyResults as $modifyResult) {
                         $valueParts[$modifyResult['id']] = explode('^^^^°°°°', $modifyResult[$column]);
                     }
@@ -313,8 +311,8 @@ class YFormConverter extends Converter
                 parent::pr($valueParts);
 
                 foreach ($clangs as $clang) {
-                    $clang_id = (int)$clang['id'] + 1;
-                    $converter->db->setQuery('ALTER TABLE `' . $tableName .'` ADD COLUMN `' . $column.'_'.$clang_id . '` text');
+                    $clang_id = (int) $clang['id'] + 1;
+                    $converter->db->setQuery('ALTER TABLE `'.$tableName.'` ADD COLUMN `'.$column.'_'.$clang_id.'` text');
 
                     $sqlInsert = \rex_sql::factory();
                     $sqlInsert->debugsql = 0;
@@ -331,12 +329,12 @@ class YFormConverter extends Converter
 
                 foreach ($valueParts as $id => $valuePart) {
                     foreach ($valuePart as $oldClangId => $input) {
-                        $clang_id = (int)$oldClangId + 1;
-                        $converter->db->setQuery('UPDATE `' . $tableName . '` SET `' . $column.'_'.$clang_id . '` = \'' . $converter->db->escape($input) . '\' WHERE id = "'.$id.'"');
+                        $clang_id = (int) $oldClangId + 1;
+                        $converter->db->setQuery('UPDATE `'.$tableName.'` SET `'.$column.'_'.$clang_id.'` = \''.$converter->db->escape($input).'\' WHERE id = "'.$id.'"');
                     }
                 }
                 $converter->dropTableColumns($tableName, [$column]);
-                $converter->db->setQuery('DELETE FROM `' . $r5Table . '` WHERE `id` = "'.$table['id'].'"');
+                $converter->db->setQuery('DELETE FROM `'.$r5Table.'` WHERE `id` = "'.$table['id'].'"');
             }
         }
     }
@@ -349,44 +347,43 @@ class YFormConverter extends Converter
         // Actions aus der rex_yform_field löschen
         // - - - - - - - - - - - - - - - - - - - -
         $values = $params['removeActions'];
-        if (count($values)) {
+        if (\count($values)) {
             foreach ($values as $value) {
-                $converter->db->setQuery('DELETE FROM `' . $r5Table . '` WHERE `type_id` = "action" AND `type_name` = "' . $value . '"');
+                $converter->db->setQuery('DELETE FROM `'.$r5Table.'` WHERE `type_id` = "action" AND `type_name` = "'.$value.'"');
             }
         }
 
         // Values aus der rex_yform_field löschen
         // - - - - - - - - - - - - - - - - - - - -
         $values = $params['removeValues'];
-        if (count($values)) {
+        if (\count($values)) {
             foreach ($values as $value) {
-                $converter->db->setQuery('DELETE FROM `' . $r5Table . '` WHERE `type_id` = "value" AND `type_name` = "' . $value . '"');
+                $converter->db->setQuery('DELETE FROM `'.$r5Table.'` WHERE `type_id` = "value" AND `type_name` = "'.$value.'"');
             }
         }
 
         // Values in der rex_yform_field anpassen
         // - - - - - - - - - - - - - - - - - - - -
         $values = $params['convertValues'];
-        if (count($values)) {
+        if (\count($values)) {
             foreach ($values as $valueName => $columns) {
                 $sets = [];
                 foreach ($columns as $columnName => $data) {
                     if (isset($data['value'])) {
-                        $sets[] = '`' . $columnName . '` = "' . $data['value'] . '"';
+                        $sets[] = '`'.$columnName.'` = "'.$data['value'].'"';
                     }
                     if (isset($data['replaces'])) {
                         foreach ($data['replaces'] as $search => $replace) {
-                            $sets[] = '`' . $columnName . '` = REPLACE(`' . $columnName . '`, "' . $search . '", "' . $replace . '")';
+                            $sets[] = '`'.$columnName.'` = REPLACE(`'.$columnName.'`, "'.$search.'", "'.$replace.'")';
                         }
                     }
                 }
-                if (count($sets)) {
-                    $converter->db->setQuery('UPDATE `' . $r5Table . '` SET ' . implode(',', $sets) . ' WHERE `type_id` = "value" AND `type_name` = "' . $valueName . '"');
+                if (\count($sets)) {
+                    $converter->db->setQuery('UPDATE `'.$r5Table.'` SET '.implode(',', $sets).' WHERE `type_id` = "value" AND `type_name` = "'.$valueName.'"');
                 }
             }
         }
     }
-
 
     public static function callbackCleanFieldTable($params)
     {
@@ -397,12 +394,12 @@ class YFormConverter extends Converter
         $checkColumnNames = [];
         foreach ($params['addColumns'] as $column) {
             foreach ($column as $columnName => $type) {
-                if (!in_array($columnName, $params['doNotDropColumns'])) {
+                if (!\in_array($columnName, $params['doNotDropColumns'])) {
                     $checkColumnNames[] = $columnName;
                 }
             }
         }
-        if (count($checkColumnNames)) {
+        if (\count($checkColumnNames)) {
             $dropColumnNames = [];
             foreach ($checkColumnNames as $checkColumnName) {
                 $query = sprintf('SELECT * FROM %s WHERE `%s` != ""', $r5Table, $checkColumnName, $checkColumnName);
@@ -411,7 +408,7 @@ class YFormConverter extends Converter
                     $dropColumnNames[] = $checkColumnName;
                 }
             }
-            if (count($checkColumnNames)) {
+            if (\count($checkColumnNames)) {
                 $converter->dropTableColumns($r5Table, $dropColumnNames);
             }
         }

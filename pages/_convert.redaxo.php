@@ -27,9 +27,7 @@ if ('convert' == $func) {
     $converter->run();
     $messages = $converter->getMessages();
     echo implode('', $messages);
-
 } elseif ('transfer' == $func && $transfer) {
-
     if (true !== rex_sql::checkDbConnection($REX['DB']['5']['HOST'], $REX['DB']['5']['LOGIN'], $REX['DB']['5']['PSW'], $REX['DB']['5']['NAME'])) {
         $transfer = false;
         echo rex_warning($I18N->msg('setup_021'));
@@ -43,7 +41,6 @@ if ('convert' == $func) {
         echo implode('', $messages);
     }
 }
-
 
 $converter = new Converter();
 $converter->boot();
@@ -81,7 +78,7 @@ echo '
                 <ul>
                     <li>
                     <p><b>Hinweis:</b> Die nachfolgenden Tabellen werden in ihrer Struktur und Inhalte in die <b>REDAXO 4 Datenbank</b> kopiert und für REDAXO 5 modifiziert. Die Tabellenspalten werden angepasst, nicht mehr genutzte Spalten gelöscht, Inhalte teilweise verschoben bzw. konvertiert.</p>
-                    <p><code class="rex-code" style="display: inline-block;">' . implode('<br />', $r4Tables) . '</code></p></li>
+                    <p><code class="rex-code" style="display: inline-block;">'.implode('<br />', $r4Tables).'</code></p></li>
                     <li><b>Aktion:</b> Unten bei Phase 1 den Button klicken und REDAXO 4 Tabellen konvertieren lassen.</li>
                 </ul>
             </li>
@@ -98,11 +95,11 @@ echo '
                             <li>Den <b>Adminer hier im REDAXO 4</b> in neuem Tab aufrufen.</li>
                             <li>Im <b>Adminer von REDAXO 4</b> oben links auf <b>Exportieren</b> klicken.</li>
                             <li>Tabellen und Daten alle wegklicken (im Tabellenkopf).</li>
-                            <li>Nur die Tabellen und Daten auswählen, bei den die Tabelle mit <b>' . $converter->getTablePrefix() . '</b> beginnen.</li>
+                            <li>Nur die Tabellen und Daten auswählen, bei den die Tabelle mit <b>'.$converter->getTablePrefix().'</b> beginnen.</li>
                             <li>Button <b>Exportieren</b> klicken.</li>
                             <li>Erstellte Daten kopieren.</li>
                             <li>Im <b>Adminer von REDAXO 5</b> oben links <b>SQL-Kommando</b> klicken und das Kopierte in das Textfeld einfügen.</li>
-                            <li>Nach <b>' . $converter->getTablePrefix() . '</b> im Textfeld suchen und löschen.</li>
+                            <li>Nach <b>'.$converter->getTablePrefix().'</b> im Textfeld suchen und löschen.</li>
                             <li>Den Button <b>Ausführen</b> klicken.</li>
                         </ol>
                         <b>Hinweis:</b> Funktioniert der Import nicht wie gewünscht, sollte man sich den Export als Datei erstellen lassen. Die heruntergeladene Datei kann man dann im <b>Adminer von REDAXO 5</b> importieren.
@@ -118,7 +115,7 @@ echo '
     
     <div class="rex-addon-content">
         <p class="rex-tx1">Die nachfolgenden Tabellen werden  jetzt kopiert und für REDAXO 5 modifiziert.</p>
-        <code class="rex-code" style="display: inline-block; margin-left: 150px;">' . implode('<br />', $r4Tables) . '</code>
+        <code class="rex-code" style="display: inline-block; margin-left: 150px;">'.implode('<br />', $r4Tables).'</code>
     </div>
     <div class="rex-form">
         <form action="index.php" method="post">
@@ -153,25 +150,25 @@ echo '
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-host">Host</label>
-                            <input class="rex-form-text" type="text" id="rex-form-host" name="db[host]" value="' . htmlspecialchars($REX['DB']['5']['HOST']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-host" name="db[host]" value="'.htmlspecialchars($REX['DB']['5']['HOST']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-login">Login</label>
-                            <input class="rex-form-text" type="text" id="rex-form-login" name="db[login]" value="' . htmlspecialchars($REX['DB']['5']['LOGIN']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-login" name="db[login]" value="'.htmlspecialchars($REX['DB']['5']['LOGIN']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-password">Passwort</label>
-                            <input class="rex-form-text" type="password" id="rex-form-password" name="db[password]" value="' . htmlspecialchars($REX['DB']['5']['PSW']) . '" />
+                            <input class="rex-form-text" type="password" id="rex-form-password" name="db[password]" value="'.htmlspecialchars($REX['DB']['5']['PSW']).'" />
                         </p>
                     </div>
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-text">
                             <label for="rex-form-name">Name</label>
-                            <input class="rex-form-text" type="text" id="rex-form-name" name="db[name]" value="' . htmlspecialchars($REX['DB']['5']['NAME']) . '" />
+                            <input class="rex-form-text" type="text" id="rex-form-name" name="db[name]" value="'.htmlspecialchars($REX['DB']['5']['NAME']).'" />
                         </p>
                     </div>
                 </div>
@@ -191,7 +188,7 @@ echo '
                     <div class="rex-form-row">
                         <p class="rex-form-col-a rex-form-select">
                             <label for="rex-form-transfer-tables">Tabellen auswählen</label>
-                            ' . $selectTransferTables->get() . '
+                            '.$selectTransferTables->get().'
                         </p>
                     </div>
                     <div class="rex-form-row">

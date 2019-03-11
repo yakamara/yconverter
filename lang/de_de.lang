@@ -1,0 +1,19 @@
+title = YConverter
+subpage_convert = Converter
+subpage_redaxo = REDAXO
+subpage_xform = XForm
+subpage_settings = Einstelllungen
+
+
+
+yconverter_core_version = REDAXO Version
+yconverter_database_connection = Datenbankverbindung
+yconverter_database_host = Host
+yconverter_database_name = Datenbankname
+yconverter_database_password = Passwort
+yconverter_database_password_exists = Passwort existiert
+yconverter_database_persistent = Persistent
+yconverter_database_user = Benutzer
+yconverter_settings_saved = Einstellungen wurden gespeichert!
+yconverter_settings_error = Einstellungen konnten nicht gespeichert werden, Schreibrechte überprüfen für: {0}
+yconverter_table_prefix = Tabellenprefix

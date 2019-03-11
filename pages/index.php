@@ -9,5 +9,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+$addon = rex_addon::get('yconverter');
 
-$REX['ADDON']['install']['yconverter'] = false;
+echo rex_view::title($addon->i18n('title'));
+
+rex_be_controller::includeCurrentPageSubPath();

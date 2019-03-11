@@ -10,13 +10,15 @@
  * file that was distributed with this source code.
  */
 
-function yconverterGetSortedSlices($articleId, $clang = false, $moduleId = 0, $revision = 0) {
-    $slices = array();
+
+function yconverterGetSortedSlices($articleId, $clang = false, $moduleId = 0, $revision = 0)
+{
+    $slices = [];
     $slicesTmp = \OOArticleSlice::getSlicesForArticle($articleId, $clang, $revision);
     if ($slicesTmp) {
         if (is_array($slicesTmp)) {
-            $sliceMap = array();
-            $sliceRefMap = array();
+            $sliceMap = [];
+            $sliceRefMap = [];
             foreach ($slicesTmp as $slice) {
                 $sliceMap[$slice->getId()] = $slice;
                 $sliceRefMap[$slice->_re_article_slice_id] = $slice->getId();
@@ -30,18 +32,17 @@ function yconverterGetSortedSlices($articleId, $clang = false, $moduleId = 0, $r
                 $nextSlice = $sliceMap[$sliceRefMap[$nextSlice->getId()]];
             }
         } else {
-            $slices = array($slicesTmp);
+            $slices = [$slicesTmp];
         }
     }
     if ($moduleId > 0) {
-        $moduleSlices = array();
-        foreach($slices as $slice) {
+        $moduleSlices = [];
+        foreach ($slices as $slice) {
             if ($slice->getModuleId() == $moduleId) {
                 $moduleSlices[] = $slice;
             }
         }
         return $moduleSlices;
-    } else {
-        return $slices;
     }
+    return $slices;
 }
