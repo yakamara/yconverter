@@ -922,7 +922,7 @@ class Converter
                 for ($i = 1; $i <= 20; $i++) {
                     $column = 'value' . $i;
                     // Notices bei unserialize vermeiden
-                    if (preg_match('@^a:\d+:{.*?}$@', $slice[$column])) {
+                    if (preg_match('@^a:\d+:{.*?}$@s', $slice[$column])) {
                         $value = \rex_var::toArray($slice[$column]);
                         if (is_array($value)) {
                             $sets[] = '`' . $column . '` = \'' . addslashes(json_encode($value)) . '\'';
