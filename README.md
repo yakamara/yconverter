@@ -1,3 +1,6 @@
+# Hinweis
+**Dieses AddOn wird für Redaxo5 entwickelt. Das AddOn für Redaxo4 ist im Branch redaxo4** 
+
 # Vorgehen
 
 **Ausführliche Anleitung** 
