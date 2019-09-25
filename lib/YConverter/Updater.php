@@ -45,20 +45,9 @@ class Updater
             $this->to430();
         }
         if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), '4.5.0', '<')) {
-            $this->convertCoreTablesToUtf8();
+            $this->to450();
         }
-
-        if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), '4.0.0', '>=')) {
-            if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), '4.2.0', '<')) {
-                $this->to420MetaInfo();
-            }
-            if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), '4.3.0', '<')) {
-                $this->to430MetaInfo();
-            }
-            if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), '4.5.0', '<')) {
-                $this->to450MetaInfo();
-            }
-        }
+        $this->message->addSuccess(sprintf('Die Tabellenstrukturen wurden erfolgreich angepasst.'));
     }
 
     public function getMessage()
@@ -177,8 +166,10 @@ class Updater
         //    PRIMARY KEY  (`field_id`),
         //    UNIQUE KEY `name` (`name`)
         //    );
+
+
         \rex_sql_table::get($this->config->getConverterTable('62_params'))
-            ->ensureColumn(new \rex_sql_column('field_id', 'int(10)', false, null, 'auto_increment'), \rex_sql_table::FIRST)
+            ->ensureColumn(new \rex_sql_column('field_id', 'int(10) unsigned', false, null, 'auto_increment'), \rex_sql_table::FIRST)
             ->ensureColumn(new \rex_sql_column('title', 'varchar(255)', true))
             ->ensureColumn(new \rex_sql_column('name', 'varchar(255)', true))
             ->ensureColumn(new \rex_sql_column('prior', 'int(10)', false))
@@ -191,7 +182,8 @@ class Updater
             ->ensureColumn(new \rex_sql_column('createdate', 'int(10)', false))
             ->ensureColumn(new \rex_sql_column('updateuser', 'varchar(255)', true))
             ->ensureColumn(new \rex_sql_column('updatedate', 'int(10)', false))
-            ->alter();
+            ->setPrimaryKey('field_id')
+            ->ensure();
 
         //INSERT INTO `%TABLE_PREFIX%62_params` VALUES ('1','translate:pool_file_description','med_description','1','','2','','','','admin','1189343866','admin','1189344596');
         //INSERT INTO `%TABLE_PREFIX%62_params` VALUES ('2','translate:pool_file_copyright','med_copyright','2','','1','','','','admin','1189343877','admin','1189344617');
@@ -214,8 +206,8 @@ class Updater
             ['field_id' => 9, 'title' => 'translate:header_article_type',   'name' => 'art_type_id',        'prior' => '7', 'attributes' => 'size=1', 'type' => '3', 'default' => '', 'params' => 'Standard|Zugriff für alle', 'validate' => '', 'createuser' => 'admin', 'createdate' => '1191963797', 'updateuser' => 'admin', 'updatedate' => '1191964038'],
         ];
         $sql = \rex_sql::factory();
-        $sql->setTable($this->config->getConverterTable('62_params'));
         foreach ($arrayValues as $values) {
+            $sql->setTable($this->config->getConverterTable('62_params'));
             $sql->setValues($values);
             $sql->insert();
         }
@@ -233,7 +225,8 @@ class Updater
             ->ensureColumn(new \rex_sql_column('label', 'varchar(255)', true))
             ->ensureColumn(new \rex_sql_column('dbtype', 'varchar(255)', false))
             ->ensureColumn(new \rex_sql_column('dblength', 'int(11)', false))
-            ->alter();
+            ->setPrimaryKey('id')
+            ->ensure();
 
         //INSERT INTO %TABLE_PREFIX%62_type VALUES (1,  'text', 'varchar', 255);
         //INSERT INTO %TABLE_PREFIX%62_type VALUES (2,  'textarea', 'text', 0);
@@ -258,8 +251,8 @@ class Updater
             ['id' => 8, 'label' => 'REX_LINK_BUTTON', 'dbtype' => 'varchar', 'dblength' => 255],
         ];
         $sql = \rex_sql::factory();
-        $sql->setTable($this->config->getConverterTable('62_type'));
         foreach ($arrayValues as $values) {
+            $sql->setTable($this->config->getConverterTable('62_type'));
             $sql->setValues($values);
             $sql->insert();
         }
@@ -313,6 +306,11 @@ class Updater
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('user').'` CHANGE `revision` `revision` INT(11) NOT NULL DEFAULT "0";');
         $this->sql->setQuery('UPDATE `'.$this->config->getConverterTable('article').'` SET `revision` = 0 WHERE `revision` IS NULL;');
         $this->sql->setQuery('UPDATE `'.$this->config->getConverterTable('article_slice').'` SET `revision` = 0 WHERE `revision` IS NULL;');
+
+
+        // Metainfo aktualisieren
+        // ----------------------------------------
+        $this->sql->setQuery('INSERT INTO `'.$this->config->getConverterTable('62_type').'` (`id`, `label`, `dbtype`, `dblength`) VALUES (12, "legend", "text", 0)');
     }
 
     private function to430()
@@ -330,26 +328,114 @@ class Updater
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('file_category').'` DROP PRIMARY KEY, ADD PRIMARY KEY (`id`), ADD INDEX `re_id` (`re_id`);');
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('module').'` DROP PRIMARY KEY, ADD PRIMARY KEY (`id`), ADD INDEX `category_id` (`category_id`);');
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('user').'` ADD UNIQUE INDEX `login` (`login`(50));');
-    }
 
-    private function to420MetaInfo()
-    {
-        $this->sql->setQuery('INSERT INTO `'.$this->config->getConverterTable('62_type').'` (`id`, `label`, `dbtype`, `dblength`) VALUES (12, "legend", "text", 0)');
-    }
 
-    private function to430MetaInfo()
-    {
+        // Metainfo aktualisieren
+        // ----------------------------------------
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('62_params').'` ADD `restrictions` TEXT NOT NULL AFTER `validate`');
         $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('62_params').'` CHANGE `validate` `validate` TEXT DEFAULT NULL');
         // unlogisch - Spalte gibt es nicht
         // $this->sql->setQuery('ALTER TABLE `'.$this->config->getConverterTable('62_type').'` ADD UNIQUE INDEX `login` (`login`(50))');
         $this->sql->setQuery('UPDATE `'.$this->config->getConverterTable('62_type').'` set dbtype="text", dblength="0" where label="REX_MEDIALIST_BUTTON" or label="REX_LINKLIST_BUTTON"');
         $this->sql->setQuery('INSERT INTO `'.$this->config->getConverterTable('62_type').'` (`id`, `label`, `dbtype`, `dblength`) VALUES (13, "time", "text", 0)');
+
+
+        // Media Manager installieren
+        // ----------------------------------------
+
+        //DROP TABLE IF EXISTS `%TABLE_PREFIX%679_types`;
+        //CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%679_types` (
+        //  `id` int(11) NOT NULL AUTO_INCREMENT,
+        //  `status` int(11) NOT NULL,
+        //  `name` varchar(255) NOT NULL,
+        //  `description` varchar(255) NOT NULL,
+        //  PRIMARY KEY (`id`),
+        //  UNIQUE KEY `name` (`name`)
+        //) TYPE=MyISAM;
+        \rex_sql_table::get($this->config->getConverterTable('679_types'))
+            ->ensureColumn(new \rex_sql_column('id', 'int(11) unsigned', false, null, 'auto_increment'), \rex_sql_table::FIRST)
+            ->ensureColumn(new \rex_sql_column('status', 'int(11)', false))
+            ->ensureColumn(new \rex_sql_column('name', 'varchar(255)', false))
+            ->ensureColumn(new \rex_sql_column('description', 'varchar(255)', false))
+            ->setPrimaryKey('id')
+            ->ensure();
+
+        //INSERT INTO `%TABLE_PREFIX%679_types` (`id`, `status`, `name`, `description`) VALUES
+        //    (1, 1, 'rex_mediapool_detail', 'Zur Darstellung von Bildern in der Detailansicht im Medienpool'),
+        //    (2, 1, 'rex_mediapool_maximized', 'Zur Darstellung von Bildern im Medienpool wenn maximiert'),
+        //    (3, 1, 'rex_mediapool_preview', 'Zur Darstellung der Vorschaubilder im Medienpool'),
+        //    (4, 1, 'rex_mediabutton_preview', 'Zur Darstellung der Vorschaubilder in REX_MEDIA_BUTTON[]s'),
+        //    (5, 1, 'rex_medialistbutton_preview', 'Zur Darstellung der Vorschaubilder in REX_MEDIALIST_BUTTON[]s');
+        $arrayValues = [
+            ['id' => 1, 'status' => '1', 'name' => 'rex_mediapool_detail',        'description' => 'Zur Darstellung von Bildern in der Detailansicht im Medienpool', ],
+            ['id' => 2, 'status' => '1', 'name' => 'rex_mediapool_maximized',     'description' => 'Zur Darstellung von Bildern im Medienpool wenn maximiert', ],
+            ['id' => 3, 'status' => '1', 'name' => 'rex_mediapool_preview',       'description' => 'Zur Darstellung der Vorschaubilder im Medienpool', ],
+            ['id' => 4, 'status' => '1', 'name' => 'rex_mediabutton_preview',     'description' => 'Zur Darstellung der Vorschaubilder in REX_MEDIA_BUTTON[]s', ],
+            ['id' => 5, 'status' => '1', 'name' => 'rex_medialistbutton_preview', 'description' => 'Zur Darstellung der Vorschaubilder in REX_MEDIALIST_BUTTON[]s', ],
+        ];
+        $sql = \rex_sql::factory();
+        foreach ($arrayValues as $values) {
+            $sql->setTable($this->config->getConverterTable('679_types'));
+            $sql->setValues($values);
+            $sql->insert();
+        }
+
+        //DROP TABLE IF EXISTS `%TABLE_PREFIX%679_type_effects`;
+        //CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%679_type_effects` (
+        //  `id` int(11) NOT NULL AUTO_INCREMENT,
+        //  `type_id` int(11) NOT NULL,
+        //  `effect` varchar(255) NOT NULL,
+        //  `parameters` text NOT NULL,
+        //  `prior` int(11) NOT NULL,
+        //  `updatedate` int(11) NOT NULL,
+        //  `updateuser` varchar(255) NOT NULL,
+        //  `createdate` int(11) NOT NULL,
+        //  `createuser` varchar(255) NOT NULL,
+        //  PRIMARY KEY (`id`)
+        //) TYPE=MyISAM;
+        \rex_sql_table::get($this->config->getConverterTable('679_type_effects'))
+            ->ensureColumn(new \rex_sql_column('id', 'int(11) unsigned', false, null, 'auto_increment'), \rex_sql_table::FIRST)
+            ->ensureColumn(new \rex_sql_column('type_id', 'int(11)', false))
+            ->ensureColumn(new \rex_sql_column('effect', 'varchar(255)', false))
+            ->ensureColumn(new \rex_sql_column('parameters', 'text', false))
+            ->ensureColumn(new \rex_sql_column('prior', 'int(11)', false))
+            ->ensureColumn(new \rex_sql_column('updatedate', 'int(11)', false))
+            ->ensureColumn(new \rex_sql_column('updateuser', 'varchar(255)', false))
+            ->ensureColumn(new \rex_sql_column('createdate', 'int(11)', false))
+            ->ensureColumn(new \rex_sql_column('createuser', 'varchar(255)', false))
+            ->setPrimaryKey('id')
+            ->ensure();
+
+        //INSERT INTO `%TABLE_PREFIX%679_type_effects` (`id`, `type_id`, `effect`, `parameters`, `prior`) VALUES
+        //    (1, 1, 'resize', 'a:6:{s:15:\"rex_effect_crop\";a:5:{s:21:\"rex_effect_crop_width\";s:0:\"\";s:22:\"rex_effect_crop_height\";s:0:\"\";s:28:\"rex_effect_crop_offset_width\";s:0:\"\";s:29:\"rex_effect_crop_offset_height\";s:0:\"\";s:24:\"rex_effect_crop_position\";s:13:\"middle_center\";}s:22:\"rex_effect_filter_blur\";a:3:{s:29:\"rex_effect_filter_blur_amount\";s:2:\"80\";s:29:\"rex_effect_filter_blur_radius\";s:1:\"8\";s:32:\"rex_effect_filter_blur_threshold\";s:1:\"3\";}s:25:\"rex_effect_filter_sharpen\";a:3:{s:32:\"rex_effect_filter_sharpen_amount\";s:2:\"80\";s:32:\"rex_effect_filter_sharpen_radius\";s:3:\"0.5\";s:35:\"rex_effect_filter_sharpen_threshold\";s:1:\"3\";}s:15:\"rex_effect_flip\";a:1:{s:20:\"rex_effect_flip_flip\";s:1:\"X\";}s:23:\"rex_effect_insert_image\";a:5:{s:34:\"rex_effect_insert_image_brandimage\";s:0:\"\";s:28:\"rex_effect_insert_image_hpos\";s:5:\"right\";s:28:\"rex_effect_insert_image_vpos\";s:6:\"bottom\";s:33:\"rex_effect_insert_image_padding_x\";s:3:\"-10\";s:33:\"rex_effect_insert_image_padding_y\";s:3:\"-10\";}s:17:\"rex_effect_resize\";a:4:{s:23:\"rex_effect_resize_width\";s:3:\"200\";s:24:\"rex_effect_resize_height\";s:3:\"200\";s:23:\"rex_effect_resize_style\";s:7:\"maximum\";s:31:\"rex_effect_resize_allow_enlarge\";s:11:\"not_enlarge\";}}', 1),
+        //    (2, 2, 'resize', 'a:6:{s:15:\"rex_effect_crop\";a:5:{s:21:\"rex_effect_crop_width\";s:0:\"\";s:22:\"rex_effect_crop_height\";s:0:\"\";s:28:\"rex_effect_crop_offset_width\";s:0:\"\";s:29:\"rex_effect_crop_offset_height\";s:0:\"\";s:24:\"rex_effect_crop_position\";s:13:\"middle_center\";}s:22:\"rex_effect_filter_blur\";a:3:{s:29:\"rex_effect_filter_blur_amount\";s:2:\"80\";s:29:\"rex_effect_filter_blur_radius\";s:1:\"8\";s:32:\"rex_effect_filter_blur_threshold\";s:1:\"3\";}s:25:\"rex_effect_filter_sharpen\";a:3:{s:32:\"rex_effect_filter_sharpen_amount\";s:2:\"80\";s:32:\"rex_effect_filter_sharpen_radius\";s:3:\"0.5\";s:35:\"rex_effect_filter_sharpen_threshold\";s:1:\"3\";}s:15:\"rex_effect_flip\";a:1:{s:20:\"rex_effect_flip_flip\";s:1:\"X\";}s:23:\"rex_effect_insert_image\";a:5:{s:34:\"rex_effect_insert_image_brandimage\";s:0:\"\";s:28:\"rex_effect_insert_image_hpos\";s:5:\"right\";s:28:\"rex_effect_insert_image_vpos\";s:6:\"bottom\";s:33:\"rex_effect_insert_image_padding_x\";s:3:\"-10\";s:33:\"rex_effect_insert_image_padding_y\";s:3:\"-10\";}s:17:\"rex_effect_resize\";a:4:{s:23:\"rex_effect_resize_width\";s:3:\"600\";s:24:\"rex_effect_resize_height\";s:3:\"600\";s:23:\"rex_effect_resize_style\";s:7:\"maximum\";s:31:\"rex_effect_resize_allow_enlarge\";s:11:\"not_enlarge\";}}', 1),
+        //    (3, 3, 'resize', 'a:6:{s:15:\"rex_effect_crop\";a:5:{s:21:\"rex_effect_crop_width\";s:0:\"\";s:22:\"rex_effect_crop_height\";s:0:\"\";s:28:\"rex_effect_crop_offset_width\";s:0:\"\";s:29:\"rex_effect_crop_offset_height\";s:0:\"\";s:24:\"rex_effect_crop_position\";s:13:\"middle_center\";}s:22:\"rex_effect_filter_blur\";a:3:{s:29:\"rex_effect_filter_blur_amount\";s:2:\"80\";s:29:\"rex_effect_filter_blur_radius\";s:1:\"8\";s:32:\"rex_effect_filter_blur_threshold\";s:1:\"3\";}s:25:\"rex_effect_filter_sharpen\";a:3:{s:32:\"rex_effect_filter_sharpen_amount\";s:2:\"80\";s:32:\"rex_effect_filter_sharpen_radius\";s:3:\"0.5\";s:35:\"rex_effect_filter_sharpen_threshold\";s:1:\"3\";}s:15:\"rex_effect_flip\";a:1:{s:20:\"rex_effect_flip_flip\";s:1:\"X\";}s:23:\"rex_effect_insert_image\";a:5:{s:34:\"rex_effect_insert_image_brandimage\";s:0:\"\";s:28:\"rex_effect_insert_image_hpos\";s:5:\"right\";s:28:\"rex_effect_insert_image_vpos\";s:6:\"bottom\";s:33:\"rex_effect_insert_image_padding_x\";s:3:\"-10\";s:33:\"rex_effect_insert_image_padding_y\";s:3:\"-10\";}s:17:\"rex_effect_resize\";a:4:{s:23:\"rex_effect_resize_width\";s:2:\"80\";s:24:\"rex_effect_resize_height\";s:2:\"80\";s:23:\"rex_effect_resize_style\";s:7:\"maximum\";s:31:\"rex_effect_resize_allow_enlarge\";s:11:\"not_enlarge\";}}', 1),
+        //    (4, 4, 'resize', 'a:6:{s:15:\"rex_effect_crop\";a:5:{s:21:\"rex_effect_crop_width\";s:0:\"\";s:22:\"rex_effect_crop_height\";s:0:\"\";s:28:\"rex_effect_crop_offset_width\";s:0:\"\";s:29:\"rex_effect_crop_offset_height\";s:0:\"\";s:24:\"rex_effect_crop_position\";s:13:\"middle_center\";}s:22:\"rex_effect_filter_blur\";a:3:{s:29:\"rex_effect_filter_blur_amount\";s:2:\"80\";s:29:\"rex_effect_filter_blur_radius\";s:1:\"8\";s:32:\"rex_effect_filter_blur_threshold\";s:1:\"3\";}s:25:\"rex_effect_filter_sharpen\";a:3:{s:32:\"rex_effect_filter_sharpen_amount\";s:2:\"80\";s:32:\"rex_effect_filter_sharpen_radius\";s:3:\"0.5\";s:35:\"rex_effect_filter_sharpen_threshold\";s:1:\"3\";}s:15:\"rex_effect_flip\";a:1:{s:20:\"rex_effect_flip_flip\";s:1:\"X\";}s:23:\"rex_effect_insert_image\";a:5:{s:34:\"rex_effect_insert_image_brandimage\";s:0:\"\";s:28:\"rex_effect_insert_image_hpos\";s:5:\"right\";s:28:\"rex_effect_insert_image_vpos\";s:6:\"bottom\";s:33:\"rex_effect_insert_image_padding_x\";s:3:\"-10\";s:33:\"rex_effect_insert_image_padding_y\";s:3:\"-10\";}s:17:\"rex_effect_resize\";a:4:{s:23:\"rex_effect_resize_width\";s:3:\"246\";s:24:\"rex_effect_resize_height\";s:3:\"246\";s:23:\"rex_effect_resize_style\";s:7:\"maximum\";s:31:\"rex_effect_resize_allow_enlarge\";s:11:\"not_enlarge\";}}', 1),
+        //    (5, 5, 'resize', 'a:6:{s:15:\"rex_effect_crop\";a:5:{s:21:\"rex_effect_crop_width\";s:0:\"\";s:22:\"rex_effect_crop_height\";s:0:\"\";s:28:\"rex_effect_crop_offset_width\";s:0:\"\";s:29:\"rex_effect_crop_offset_height\";s:0:\"\";s:24:\"rex_effect_crop_position\";s:13:\"middle_center\";}s:22:\"rex_effect_filter_blur\";a:3:{s:29:\"rex_effect_filter_blur_amount\";s:2:\"80\";s:29:\"rex_effect_filter_blur_radius\";s:1:\"8\";s:32:\"rex_effect_filter_blur_threshold\";s:1:\"3\";}s:25:\"rex_effect_filter_sharpen\";a:3:{s:32:\"rex_effect_filter_sharpen_amount\";s:2:\"80\";s:32:\"rex_effect_filter_sharpen_radius\";s:3:\"0.5\";s:35:\"rex_effect_filter_sharpen_threshold\";s:1:\"3\";}s:15:\"rex_effect_flip\";a:1:{s:20:\"rex_effect_flip_flip\";s:1:\"X\";}s:23:\"rex_effect_insert_image\";a:5:{s:34:\"rex_effect_insert_image_brandimage\";s:0:\"\";s:28:\"rex_effect_insert_image_hpos\";s:5:\"right\";s:28:\"rex_effect_insert_image_vpos\";s:6:\"bottom\";s:33:\"rex_effect_insert_image_padding_x\";s:3:\"-10\";s:33:\"rex_effect_insert_image_padding_y\";s:3:\"-10\";}s:17:\"rex_effect_resize\";a:4:{s:23:\"rex_effect_resize_width\";s:3:\"246\";s:24:\"rex_effect_resize_height\";s:3:\"246\";s:23:\"rex_effect_resize_style\";s:7:\"maximum\";s:31:\"rex_effect_resize_allow_enlarge\";s:11:\"not_enlarge\";}}', 1);
+        $arrayValues = [
+            ['id' => 1, 'type_id' => '1', 'effect' => 'resize', 'parameters' => 'a:6:{s:15:"rex_effect_crop";a:5:{s:21:"rex_effect_crop_width";s:0:"";s:22:"rex_effect_crop_height";s:0:"";s:28:"rex_effect_crop_offset_width";s:0:"";s:29:"rex_effect_crop_offset_height";s:0:"";s:24:"rex_effect_crop_position";s:13:"middle_center";}s:22:"rex_effect_filter_blur";a:3:{s:29:"rex_effect_filter_blur_amount";s:2:"80";s:29:"rex_effect_filter_blur_radius";s:1:"8";s:32:"rex_effect_filter_blur_threshold";s:1:"3";}s:25:"rex_effect_filter_sharpen";a:3:{s:32:"rex_effect_filter_sharpen_amount";s:2:"80";s:32:"rex_effect_filter_sharpen_radius";s:3:"0.5";s:35:"rex_effect_filter_sharpen_threshold";s:1:"3";}s:15:"rex_effect_flip";a:1:{s:20:"rex_effect_flip_flip";s:1:"X";}s:23:"rex_effect_insert_image";a:5:{s:34:"rex_effect_insert_image_brandimage";s:0:"";s:28:"rex_effect_insert_image_hpos";s:5:"right";s:28:"rex_effect_insert_image_vpos";s:6:"bottom";s:33:"rex_effect_insert_image_padding_x";s:3:"-10";s:33:"rex_effect_insert_image_padding_y";s:3:"-10";}s:17:"rex_effect_resize";a:4:{s:23:"rex_effect_resize_width";s:3:"200";s:24:"rex_effect_resize_height";s:3:"200";s:23:"rex_effect_resize_style";s:7:"maximum";s:31:"rex_effect_resize_allow_enlarge";s:11:"not_enlarge";}}', 'prior' => '1', ],
+            ['id' => 2, 'type_id' => '2', 'effect' => 'resize', 'parameters' => 'a:6:{s:15:"rex_effect_crop";a:5:{s:21:"rex_effect_crop_width";s:0:"";s:22:"rex_effect_crop_height";s:0:"";s:28:"rex_effect_crop_offset_width";s:0:"";s:29:"rex_effect_crop_offset_height";s:0:"";s:24:"rex_effect_crop_position";s:13:"middle_center";}s:22:"rex_effect_filter_blur";a:3:{s:29:"rex_effect_filter_blur_amount";s:2:"80";s:29:"rex_effect_filter_blur_radius";s:1:"8";s:32:"rex_effect_filter_blur_threshold";s:1:"3";}s:25:"rex_effect_filter_sharpen";a:3:{s:32:"rex_effect_filter_sharpen_amount";s:2:"80";s:32:"rex_effect_filter_sharpen_radius";s:3:"0.5";s:35:"rex_effect_filter_sharpen_threshold";s:1:"3";}s:15:"rex_effect_flip";a:1:{s:20:"rex_effect_flip_flip";s:1:"X";}s:23:"rex_effect_insert_image";a:5:{s:34:"rex_effect_insert_image_brandimage";s:0:"";s:28:"rex_effect_insert_image_hpos";s:5:"right";s:28:"rex_effect_insert_image_vpos";s:6:"bottom";s:33:"rex_effect_insert_image_padding_x";s:3:"-10";s:33:"rex_effect_insert_image_padding_y";s:3:"-10";}s:17:"rex_effect_resize";a:4:{s:23:"rex_effect_resize_width";s:3:"600";s:24:"rex_effect_resize_height";s:3:"600";s:23:"rex_effect_resize_style";s:7:"maximum";s:31:"rex_effect_resize_allow_enlarge";s:11:"not_enlarge";}}', 'prior' => '1', ],
+            ['id' => 3, 'type_id' => '3', 'effect' => 'resize', 'parameters' => 'a:6:{s:15:"rex_effect_crop";a:5:{s:21:"rex_effect_crop_width";s:0:"";s:22:"rex_effect_crop_height";s:0:"";s:28:"rex_effect_crop_offset_width";s:0:"";s:29:"rex_effect_crop_offset_height";s:0:"";s:24:"rex_effect_crop_position";s:13:"middle_center";}s:22:"rex_effect_filter_blur";a:3:{s:29:"rex_effect_filter_blur_amount";s:2:"80";s:29:"rex_effect_filter_blur_radius";s:1:"8";s:32:"rex_effect_filter_blur_threshold";s:1:"3";}s:25:"rex_effect_filter_sharpen";a:3:{s:32:"rex_effect_filter_sharpen_amount";s:2:"80";s:32:"rex_effect_filter_sharpen_radius";s:3:"0.5";s:35:"rex_effect_filter_sharpen_threshold";s:1:"3";}s:15:"rex_effect_flip";a:1:{s:20:"rex_effect_flip_flip";s:1:"X";}s:23:"rex_effect_insert_image";a:5:{s:34:"rex_effect_insert_image_brandimage";s:0:"";s:28:"rex_effect_insert_image_hpos";s:5:"right";s:28:"rex_effect_insert_image_vpos";s:6:"bottom";s:33:"rex_effect_insert_image_padding_x";s:3:"-10";s:33:"rex_effect_insert_image_padding_y";s:3:"-10";}s:17:"rex_effect_resize";a:4:{s:23:"rex_effect_resize_width";s:2:"80";s:24:"rex_effect_resize_height";s:2:"80";s:23:"rex_effect_resize_style";s:7:"maximum";s:31:"rex_effect_resize_allow_enlarge";s:11:"not_enlarge";}}', 'prior' => '1', ],
+            ['id' => 4, 'type_id' => '4', 'effect' => 'resize', 'parameters' => 'a:6:{s:15:"rex_effect_crop";a:5:{s:21:"rex_effect_crop_width";s:0:"";s:22:"rex_effect_crop_height";s:0:"";s:28:"rex_effect_crop_offset_width";s:0:"";s:29:"rex_effect_crop_offset_height";s:0:"";s:24:"rex_effect_crop_position";s:13:"middle_center";}s:22:"rex_effect_filter_blur";a:3:{s:29:"rex_effect_filter_blur_amount";s:2:"80";s:29:"rex_effect_filter_blur_radius";s:1:"8";s:32:"rex_effect_filter_blur_threshold";s:1:"3";}s:25:"rex_effect_filter_sharpen";a:3:{s:32:"rex_effect_filter_sharpen_amount";s:2:"80";s:32:"rex_effect_filter_sharpen_radius";s:3:"0.5";s:35:"rex_effect_filter_sharpen_threshold";s:1:"3";}s:15:"rex_effect_flip";a:1:{s:20:"rex_effect_flip_flip";s:1:"X";}s:23:"rex_effect_insert_image";a:5:{s:34:"rex_effect_insert_image_brandimage";s:0:"";s:28:"rex_effect_insert_image_hpos";s:5:"right";s:28:"rex_effect_insert_image_vpos";s:6:"bottom";s:33:"rex_effect_insert_image_padding_x";s:3:"-10";s:33:"rex_effect_insert_image_padding_y";s:3:"-10";}s:17:"rex_effect_resize";a:4:{s:23:"rex_effect_resize_width";s:3:"246";s:24:"rex_effect_resize_height";s:3:"246";s:23:"rex_effect_resize_style";s:7:"maximum";s:31:"rex_effect_resize_allow_enlarge";s:11:"not_enlarge";}}', 'prior' => '1', ],
+            ['id' => 5, 'type_id' => '5', 'effect' => 'resize', 'parameters' => 'a:6:{s:15:"rex_effect_crop";a:5:{s:21:"rex_effect_crop_width";s:0:"";s:22:"rex_effect_crop_height";s:0:"";s:28:"rex_effect_crop_offset_width";s:0:"";s:29:"rex_effect_crop_offset_height";s:0:"";s:24:"rex_effect_crop_position";s:13:"middle_center";}s:22:"rex_effect_filter_blur";a:3:{s:29:"rex_effect_filter_blur_amount";s:2:"80";s:29:"rex_effect_filter_blur_radius";s:1:"8";s:32:"rex_effect_filter_blur_threshold";s:1:"3";}s:25:"rex_effect_filter_sharpen";a:3:{s:32:"rex_effect_filter_sharpen_amount";s:2:"80";s:32:"rex_effect_filter_sharpen_radius";s:3:"0.5";s:35:"rex_effect_filter_sharpen_threshold";s:1:"3";}s:15:"rex_effect_flip";a:1:{s:20:"rex_effect_flip_flip";s:1:"X";}s:23:"rex_effect_insert_image";a:5:{s:34:"rex_effect_insert_image_brandimage";s:0:"";s:28:"rex_effect_insert_image_hpos";s:5:"right";s:28:"rex_effect_insert_image_vpos";s:6:"bottom";s:33:"rex_effect_insert_image_padding_x";s:3:"-10";s:33:"rex_effect_insert_image_padding_y";s:3:"-10";}s:17:"rex_effect_resize";a:4:{s:23:"rex_effect_resize_width";s:3:"246";s:24:"rex_effect_resize_height";s:3:"246";s:23:"rex_effect_resize_style";s:7:"maximum";s:31:"rex_effect_resize_allow_enlarge";s:11:"not_enlarge";}}', 'prior' => '1', ],
+        ];
+        $sql = \rex_sql::factory();
+        foreach ($arrayValues as $values) {
+            $sql->setTable($this->config->getConverterTable('679_type_effects'));
+            $sql->setValues($values);
+            $sql->insert();
+        }
     }
 
-    private function to450MetaInfo()
+    private function to450()
     {
+        // Metainfo aktualisieren
+        // ----------------------------------------
         $this->sql->setQuery('UPDATE `'.$this->config->getConverterTable('62_type').'` set dbtype="text", dblength="0" where label="REX_MEDIALIST_BUTTON" or label="REX_LINKLIST_BUTTON" or label="text" or label="date" or label="datetime"');
+
+        // Utf-8
+        // ----------------------------------------
+        $this->convertCoreTablesToUtf8();
     }
 
     private function convertCoreTablesToUtf8()

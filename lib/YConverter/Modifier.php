@@ -104,7 +104,7 @@ class Modifier
                                     }
                                 }
                                 $this->message->addSuccess(sprintf('Die Daten des Feldes <code>%s</code> der Tabelle <code>%s</code> wurden konvertiert', $column, $r5Table));
-                                $this->checkOutdatetCode($r5Table, $params['fireReplaces']);
+                                $this->checkOutdatedCode($r5Table, $params['fireReplaces']);
                                 break;
                             case 'serialize':
                                 $items = $this->sql->getArray('SELECT `id`, '.$columnEscaped.' FROM '.$r5TableEscaped.' WHERE '.$columnEscaped.' != ""');
@@ -160,9 +160,9 @@ class Modifier
 
                 if (isset($params['callbacks'])) {
                     foreach ($params['callbacks'] as $callback) {
-                        $level = isset($callback[1]) ? $callback[1] : self::NORMAL;
+                        $level = isset($callback['level']) ? $callback['level'] : self::NORMAL;
                         $params['r5Table'] = $r5Table;
-                        $callbacks[$level][] = ['function' => $callback[0], 'params' => $params];
+                        $callbacks[$level][] = ['function' => $callback['function'], 'params' => $params];
                     }
                 }
             }
@@ -181,9 +181,8 @@ class Modifier
 
     public function checkMissingColumns()
     {
+        $missingTables = [];
         foreach ($this->tables as $table => $versions) {
-            $missingTables = [];
-
             $originalTable = \rex::getTable($table);
             $convertTable = $this->config->getConverterTable($table);
 
@@ -192,9 +191,6 @@ class Modifier
                 $missingTables[] = $sqlTable->getName();
                 continue;
             }
-
-
-            dump($sqlTable->getColumns());
 
             $originalColumns = \rex_sql::showColumns($originalTable);
             $convertColumns = \rex_sql::showColumns($convertTable);
@@ -207,6 +203,9 @@ class Modifier
             if (count($missingColumns)) {
                 $this->message->addWarning(sprintf('Folgende Felder sind der REDAXO 5 Tabelle <code>%s</code> nicht bekannt <ul><li>%s</li></ul>', $originalTable, implode('</li><li>', $missingColumns)));
             }
+        }
+        if (count($missingTables)) {
+            $this->message->addWarning(sprintf('Folgende Tabelle sind der REDAXO 5 Instanz nicht bekannt <ul><li>%s</li></ul>', implode('</li><li>', $missingTables)));
         }
     }
 
@@ -401,7 +400,8 @@ class Modifier
             // MetaInfo
             // - - - - - - - - - - - - - - - - - -
             'metainfo_field' => [
-                '4.0.0' => [
+                // eigentlich 4.0.0 - Tabellen werden vom Updater auch für <4.0.0 angelegt
+                '2.7.0' => [
                     'renameTable' => [
                         'oldName' => '62_params',
                     ],
@@ -432,7 +432,8 @@ class Modifier
                 ],
             ],
             'metainfo_type' => [
-                '4.0.0' => [
+                // eigentlich 4.0.0 - Tabellen werden vom Updater auch für <4.0.0 angelegt
+                '2.7.0' => [
                     'renameTable' => [
                         'oldName' => '62_type',
                     ],
@@ -448,14 +449,16 @@ class Modifier
             // MediaManager
             // - - - - - - - - - - - - - - - - - -
             'media_manager_type' => [
-                '4.0.0' => [
+                // eigentlich 4.0.0 - Tabellen werden vom Updater auch für <4.0.0 angelegt
+                '2.7.0' => [
                     'renameTable' => [
                         'oldName' => '679_types',
                     ],
                 ],
             ],
             'media_manager_type_effect' => [
-                '4.0.0' => [
+                // eigentlich 4.0.0 - Tabellen werden vom Updater auch für <4.0.0 angelegt
+                '2.7.0' => [
                     'renameTable' => [
                         'oldName' => '679_type_effects',
                     ],
@@ -523,7 +526,10 @@ class Modifier
                         'attributes',
                     ],
                     'callbacks' => [
-                        ['callbackModifyArticles', self::EARLY],
+                        [
+                            'function' => 'callbackModifyArticles',
+                            'level' => self::EARLY]
+                        ,
                     ],
                 ],
             ],
@@ -607,7 +613,10 @@ class Modifier
                         'html',
                     ],
                     'callbacks' => [
-                        ['callbackModifyArticleSlices', self::LATE],
+                        [
+                            'function' => 'callbackModifyArticleSlices',
+                            'level' => self::LATE
+                        ],
                     ],
                 ],
             ],
@@ -633,7 +642,10 @@ class Modifier
                     ],
                     'ensurePrimaryIdColumn' => false,
                     'callbacks' => [
-                        ['callbackModifyLanguages', self::EARLY],
+                        [
+                            'function' => 'callbackModifyLanguages',
+                            'level' => self::EARLY
+                        ],
                     ],
                 ],
             ],
@@ -755,7 +767,7 @@ class Modifier
         return true;
     }
 
-    private function checkOutdatetCode($table, $column)
+    private function checkOutdatedCode($table, $column)
     {
         $items = $this->sql->getArray('SELECT `id`, `'.$column.'` FROM `'.$table.'` WHERE `'.$column.'` != ""');
         if (\count($items)) {

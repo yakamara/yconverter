@@ -61,7 +61,7 @@ class YConverter
         $this->message = $updater->getMessage();
     }
 
-    public function getMissinColumns()
+    public function getMissingColumns()
     {
         $updater = new Modifier($this->config, $this->message);
         $updater->checkMissingColumns();

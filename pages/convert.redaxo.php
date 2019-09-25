@@ -28,9 +28,17 @@ if ($func && !$csrfToken->isValid()) {
             // Clone all tables of the outdated version.
             $converter->cloneTables();
             break;
+        case 'missing':
+            // check missing columns in version 5
+            $converter->getMissingColumns();
+            break;
         case 'modify':
             // Modify tables from version 4 to 5.
             $converter->modifyTables();
+            break;
+        case 'transfer':
+            // Update tables to last version before 5.x
+            $converter->transferData();
             break;
         case 'update':
             // Update tables to last version before 5.x
@@ -41,7 +49,7 @@ if ($func && !$csrfToken->isValid()) {
             //$converter->updateTables();
             //$converter->modifyTables();
             //$converter->callCallbacks();
-            $converter->getMissinColumns();
+            //$converter->getMissingColumns();
             //$converter->transferData();
             break;
     }
@@ -49,7 +57,19 @@ if ($func && !$csrfToken->isValid()) {
 }
 echo sprintf('<p><a class="btn btn-save" href="%s">Run.</a></p>', rex_url::currentBackendPage(['func' => 'run'] + $csrfToken->getUrlParams()));
 
-echo sprintf('<p><a class="btn btn-primary" href="%s">Clone all tables of the outdated version.</a></p>', rex_url::currentBackendPage(['func' => 'clone'] + $csrfToken->getUrlParams()));
-echo sprintf('<p><a class="btn btn-primary" href="%s">Update tables to last version before 5.x</a></p>', rex_url::currentBackendPage(['func' => 'update'] + $csrfToken->getUrlParams()));
-echo sprintf('<p><a class="btn btn-primary" href="%s">Modify tables from version 4 to 5.</a></p>', rex_url::currentBackendPage(['func' => 'modify'] + $csrfToken->getUrlParams()));
-echo sprintf('<p><a class="btn btn-primary" href="%s">Call callbacks.</a></p>', rex_url::currentBackendPage(['func' => 'callback'] + $csrfToken->getUrlParams()));
+$buttons = [
+    'clone' => 'Clone all tables of the outdated version.',
+    'update' => 'Update table structures to last version before 5.x',
+    'modify' => 'Modify tables from version 4 to 5.',
+    'callback' => 'Call callbacks.',
+    'missing' => 'Check missing columns.',
+    'transfer' => 'Transfer data in REDAXO 5 Instance.',
+];
+
+echo '<div class="list-group">';
+$counter = 0;
+foreach ($buttons as $key => $label) {
+    $counter++;
+    echo sprintf('<a class="list-group-item" href="%s"><h4 class="list-group-item-heading">%s</h4><p class="list-group-item-text">%s</p></a>', rex_url::currentBackendPage(['func' => $key] + $csrfToken->getUrlParams()), $counter, $label);
+}
+echo '</div>';
