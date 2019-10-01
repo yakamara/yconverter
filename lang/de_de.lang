@@ -17,3 +17,15 @@ yconverter_database_user = Benutzer
 yconverter_settings_saved = Einstellungen wurden gespeichert!
 yconverter_settings_error = Einstellungen konnten nicht gespeichert werden, Schreibrechte überprüfen für: {0}
 yconverter_table_prefix = Tabellenprefix
+
+
+yconverter_clone_tables = Alle Tabellen der veralteten Version klonen.
+yconverter_compare_tables_and_columns = Fehlende Tabellen und Spalten überprüfen.
+yconverter_execute = Ausführen
+yconverter_modify_table_contents = Tabelleninhalte von Version 4 auf 5 anpassen.
+yconverter_reset_and_start_again = Zurücksetzen und erneut beginnen.
+yconverter_transfer_data_to_instance = Daten in die REDAXO Instanz übertragen.
+yconverter_update_table_structures_to_last_version = Tabellenstrukturen auf die letzte Version 5.x aktualisieren
+
+
+yconverter_cronjob_info = Das Intervall muss am Ende neu gesetzt werden.

@@ -12,6 +12,8 @@
 
 namespace YConverter;
 
+use YConcerter\Package\Package;
+
 class Shuttle
 {
     private $config;
@@ -19,8 +21,9 @@ class Shuttle
     private $sql;
 
     private $tables;
+    private $package;
 
-    public function __construct(Config $config, Message $message)
+    public function __construct(Config $config, Message $message, Package $package)
     {
         $this->sql = \rex_sql::factory();
         $this->sql->setDebug(false);
@@ -28,91 +31,8 @@ class Shuttle
         $this->config = $config;
         $this->message = $message;
 
-        $this->boot();
-    }
-
-    private function boot()
-    {
-        $this->tables = [
-            // MetaInfo
-            // - - - - - - - - - - - - - - - - - -
-            'metainfo_field' => [
-                '4.0.0' => [
-                ],
-            ],
-            'metainfo_type' => [
-                '4.0.0' => [
-                ],
-            ],
-
-            // MediaManager
-            // - - - - - - - - - - - - - - - - - -
-            'media_manager_type' => [
-                '4.0.0' => [
-                ],
-            ],
-            'media_manager_type_effect' => [
-                '4.0.0' => [
-                ],
-            ],
-
-            // Action
-            // - - - - - - - - - - - - - - - - - -
-            'action' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            // Articles
-            // - - - - - - - - - - - - - - - - - -
-            'article' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            // Article Slices
-            // - - - - - - - - - - - - - - - - - -
-            'article_slice' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            // Clang
-            // - - - - - - - - - - - - - - - - - -
-            'clang' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            // Media
-            // - - - - - - - - - - - - - - - - - -
-            'media' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            'media_category' => [
-                '2.7.0' => [
-                ],
-            ],
-
-            // Module
-            // - - - - - - - - - - - - - - - - - -
-            'module' => [
-                '2.7.0' => [
-                ],
-            ],
-            'module_action' => [
-                '2.7.0' => [],
-            ],
-
-            // Templates
-            // - - - - - - - - - - - - - - - - - -
-            'template' => [
-                '2.7.0' => [
-                ],
-            ],
-        ];
+        $this->package = $package;
+        $this->tables = array_keys($package->getTables());
     }
 
     public function getMessage()
@@ -120,42 +40,13 @@ class Shuttle
         return $this->message;
     }
 
-    //public function transfer()
-    //{
-    //    foreach ($this->tables as $table => $versions) {
-    //        foreach ($versions as $fromVersion => $params) {
-    //            if (\rex_string::versionCompare($this->config->getOutdatedCoreVersion(), $fromVersion, '<')) {
-    //                continue;
-    //            }
-    //
-    //            $originalTable = \rex::getTable($table);
-    //            $convertTable = $this->config->getConverterTable($table);
-    //
-    //            $originalColumns = \rex_sql::showColumns($originalTable);
-    //            $convertColumns = \rex_sql::showColumns($convertTable);
-    //
-    //            $originalNames = array_column($originalColumns, 'name');
-    //            $convertNames = array_column($convertColumns, 'name');
-    //
-    //            $missingColumns = array_diff($convertNames, $originalNames);
-    //
-    //            if (count($missingColumns)) {
-    //
-    //            }
-    //        }
-    //    }
-    //
-    //}
-
 
     public function transfer()
     {
         $tablesTransfered = [];
         $insertSize = 4000;
 
-        $tables = array_keys($this->tables);
-
-        foreach ($tables as $table) {
+        foreach ($this->tables as $table) {
             $r5Columns = \rex_sql::showColumns(\rex::getTable($table));
             $convertColumns = \rex_sql::showColumns($this->config->getConverterTable($table));
 
@@ -170,6 +61,7 @@ class Shuttle
                 }
             }
 
+            $this->sql->setQuery('TRUNCATE '.$this->sql->escapeIdentifier(\rex::getTable($table)));
             $sql = \rex_sql::factory();
             $start = 0;
             $max = $insertSize;
@@ -197,7 +89,7 @@ class Shuttle
                     $values[] = $nl.'  ('.implode(',', $record).')';
                 }
 
-                if (!empty($values)) {
+                if (!empty($values)) {;
                     $this->sql->setQuery('INSERT INTO '.$this->sql->escapeIdentifier(\rex::getTable($table)).' VALUES '.implode(',', $values).';');
                     unset($values);
                 }
@@ -211,5 +103,16 @@ class Shuttle
         if (\count($tablesTransfered)) {
             $this->message->addSuccess(sprintf('Folgende Tabellen und deren Inhalte wurden erfolgreich in die REDAXO 5 Instanz kopiert.<br /><br /><pre class="rex-code">%s</pre>', implode('<br />', $tablesTransfered)));
         }
+
+
+
+        if (\rex_addon::get('developer')->isAvailable()) {
+            \rex_dir::delete(\rex_developer_manager::getBasePath().'action');
+            \rex_dir::delete(\rex_developer_manager::getBasePath().'modules');
+            \rex_dir::delete(\rex_developer_manager::getBasePath().'templates');
+        }
+
+
+        rex_delete_cache();
     }
 }

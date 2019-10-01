@@ -12,13 +12,20 @@
 
 namespace YConverter;
 
+use YConcerter\Package\Package;
+
 class YConverter
 {
+    public const EARLY = -1;
+    public const NORMAL = 0;
+    public const LATE = 1;
+
     private $config;
     private $sql;
     private $message;
+    private $package;
 
-    public function __construct()
+    public function __construct(Package $package)
     {
 
         $this->sql = \rex_sql::factory();
@@ -26,6 +33,8 @@ class YConverter
 
         $this->config = new Config();
         $this->message = new Message();
+        $this->package = $package;
+        $this->package->setConfig($this->config);
     }
 
     public function cloneTables()
@@ -33,6 +42,8 @@ class YConverter
         $cloner = new Cloner($this->config, $this->message);
         $cloner->fetchTables();
         $this->message = $cloner->getMessage();
+
+        \rex_config::set('yconverter', 'yconverter', ['clone']);
     }
 
     public function getMessages()
@@ -42,36 +53,50 @@ class YConverter
 
     public function updateTables()
     {
-        $updater = new Updater($this->config, $this->message);
+        $updater = new Updater($this->config, $this->message, $this->package);
         $updater->run();
         $this->message = $updater->getMessage();
+
+        $array = \rex_config::get('yconverter', $this->package->getName(), []);
+        $array[] = 'update';
+        \rex_config::set('yconverter', $this->package->getName(), $array);
     }
 
     public function modifyTables()
     {
-        $updater = new Modifier($this->config, $this->message);
-        $updater->updateTables();
-        $this->message = $updater->getMessage();
+        $modifier = new Modifier($this->config, $this->message, $this->package);
+        $modifier->updateTables();
+        $modifier->callCallbacks();
+        $this->message = $modifier->getMessage();
+
+        $array = \rex_config::get('yconverter', $this->package->getName(), []);
+        $array[] = 'modify';
+        \rex_config::set('yconverter', $this->package->getName(), $array);
     }
 
-    public function callCallbacks()
+    public function compareTables()
     {
-        $updater = new Modifier($this->config, $this->message);
-        $updater->callCallbacks();
-        $this->message = $updater->getMessage();
-    }
+        $compare = new Compare($this->config, $this->message, $this->package);
+        $compare->run();
+        $this->message = $compare->getMessage();
 
-    public function getMissingColumns()
-    {
-        $updater = new Modifier($this->config, $this->message);
-        $updater->checkMissingColumns();
-        $this->message = $updater->getMessage();
+        // multiple executable
+        // set in transferData
+        //
+        //$array = \rex_config::get('yconverter', 'core', []);
+        //$array[] = 'missing';
+        //\rex_config::set('yconverter', 'core', $array);
     }
 
     public function transferData()
     {
-        $updater = new Shuttle($this->config, $this->message);
-        $updater->transfer();
-        $this->message = $updater->getMessage();
+        $shuttle = new Shuttle($this->config, $this->message, $this->package);
+        $shuttle->transfer();
+        $this->message = $shuttle->getMessage();
+
+        $array = \rex_config::get('yconverter', $this->package->getName(), []);
+        $array[] = 'compare';
+        $array[] = 'transfer';
+        \rex_config::set('yconverter', $this->package->getName(), $array);
     }
 }
