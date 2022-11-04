@@ -26,6 +26,8 @@ das AddOn Adminer in der REDAXO 5 Instanz via Installer installieren.
 * `rex_module_action`
 * `rex_template`
 
+In der REDAXO 4 Datenbank werden sie dann als z.B. `yconverter_rex_article` usw. gespeichert, die original REDAXO 4 Datenbanktabellen bleiben unangetastet.
+
 > Aktion: Unten bei Phase 1 den Button klicken und REDAXO 4 Tabellen konvertieren lassen.
 
 ## 2. Phase
